@@ -69,8 +69,12 @@ Local CI mirror (`scripts/ci_local.sh`) — **all lanes green**:
   uniform number).
 - **Security:** bandit 0 issues; pip-audit 0 vulns (pytest `CVE-2025-71176`
   remediated by upgrading 8.4.2 → 9.0.3 — fixed, not suppressed, per H-03).
-- **GitHub Actions:** `.github/workflows/ci.yml` runs the same lanes on push/PR;
-  results will attach to the PR once pushed.
+- **GitHub Actions:** `.github/workflows/ci.yml` — **all 5 checks green** on PR #1
+  ([run 28458791762](https://github.com/Sir7s/MedicalCLAP/actions/runs/28458791762)):
+  `ci`, `lint · type · tests`, `security · secrets · deps`, `frontend`,
+  `docker build`. (One earlier run failed because the gitleaks action requires
+  `GITHUB_TOKEN` for PR scans; fixed by supplying the auto-provided token —
+  a CI fix, not a bypass.)
 
 ## 5. Clause-level conformance
 
