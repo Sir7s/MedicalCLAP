@@ -1,0 +1,22 @@
+P0: specification baseline & repository bootstrap
+
+Establish the executable specification baseline, repository skeleton, project
+state machine, governance templates, and minimal CI for the 3D Medical CLIP
+project. No future-phase functionality implemented (H-01).
+
+- S1: lock 4 authoritative docs via SPEC_MANIFEST.json (normative root hash) +
+      VERSION_LOCK.md; doc-integrity test.
+- S2: git repo, MIT LICENSE, README (with mandatory medical disclaimer),
+      .gitignore/.gitattributes blocking data/weights/secrets (H-13/H-14),
+      CONTRIBUTING, SECURITY; repo-structure safety test.
+- S3: directory skeleton (backend/frontend/services/ml/infra placeholders),
+      PROJECT_STATE.{md,json} to Master Plan §10.1 shape, report templates;
+      state-sync test.
+- S4: PR/issue templates, CODEOWNERS, branch-protection policy.
+- S5: GitHub Actions CI (lint/type/test/security/dep-audit/docker-stub/
+      coverage) + local mirror scripts/ci_local.sh.
+
+Tests: 43 passed. Security: bandit 0 issues; pip-audit 0 vulns
+(pytest CVE-2025-71176 fixed by 8.4.2 -> 9.0.3). Architecture deviation: none.
+
+Co-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>

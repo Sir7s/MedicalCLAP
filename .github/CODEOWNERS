@@ -1,0 +1,8 @@
+# Default owner for all changes (single-maintainer portfolio project).
+* @Sir7s
+
+# Governance-critical paths — always require maintainer review.
+/docs/specs/        @Sir7s
+/PROJECT_STATE.md   @Sir7s
+/project_state.json @Sir7s
+/.github/           @Sir7s

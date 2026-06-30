@@ -1,0 +1,35 @@
+name: Phase task
+description: Track a phase or subphase work item in the execution plan.
+title: "[P<NN>] <short title>"
+labels: ["phase"]
+body:
+  - type: input
+    id: phase
+    attributes:
+      label: Phase
+      description: Which phase (e.g. P0, P7)?
+      placeholder: P0
+    validations:
+      required: true
+  - type: input
+    id: subphase
+    attributes:
+      label: Subphase
+      placeholder: S1
+  - type: textarea
+    id: goal
+    attributes:
+      label: Goal / deliverable
+    validations:
+      required: true
+  - type: textarea
+    id: tests
+    attributes:
+      label: Acceptance / critical tests
+  - type: dropdown
+    id: risk
+    attributes:
+      label: Risk level
+      options: ["low", "medium", "high"]
+    validations:
+      required: true

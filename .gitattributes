@@ -1,0 +1,19 @@
+# Normalize line endings: keep LF in the repo, let Windows check out CRLF for shells.
+* text=auto eol=lf
+
+# Shell scripts must stay LF even on Windows checkout.
+*.sh text eol=lf
+
+# Treat these as binary (no diff/merge munging).
+*.pdf binary
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.nii binary
+*.nii.gz binary
+*.pt binary
+*.pth binary
+*.onnx binary
+*.safetensors binary
