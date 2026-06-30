@@ -15,7 +15,7 @@
   "last_approved_exit_report": null,
   "next_entry_gate": "P0 exit gate: all authoritative documents present and consistent; CI smoke test green; user approves and merges the P0 pull request.",
   "active_branch": "phase/P0-bootstrap",
-  "open_pull_request": null,
+  "open_pull_request": "https://github.com/Sir7s/MedicalCLAP/pull/1",
   "critical_tests": {
     "P0": {
       "test_doc_integrity": "passing",

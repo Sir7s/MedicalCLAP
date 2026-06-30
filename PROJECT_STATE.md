@@ -6,7 +6,7 @@
 **Architecture version:** 2.4.5 (`final_freeze_candidate`) · **Master Plan:** v1.0  
 **Current phase:** P0 — Specification Lock and Repository Bootstrap  
 **Current subphase:** S5 (CI) → S6 (PR)  
-**Phase status:** In progress (executing on branch `phase/P0-bootstrap`; not yet approved/merged)  
+**Phase status:** In review — [PR #1](https://github.com/Sir7s/MedicalCLAP/pull/1) open; not yet approved/merged  
 **Next entry gate:** P0 exit — all authoritative docs present & consistent, CI smoke green, user approves & merges P0 PR
 
 ---
