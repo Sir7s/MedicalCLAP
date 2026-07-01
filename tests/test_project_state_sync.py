@@ -47,13 +47,11 @@ def test_required_section_10_1_fields_present():
 
 
 def test_phase_agrees_across_files():
+    """The current phase and active branch in JSON must be reflected in the MD."""
     s = _state()
     md = _md()
-    assert s["current_phase"] == "P0"
-    assert "P0" in md
-    # active branch in json must be mentioned in the markdown
-    assert s["active_branch"] == "phase/P0-bootstrap"
-    assert "phase/P0-bootstrap" in md
+    assert s["current_phase"] in md, "current_phase must appear in PROJECT_STATE.md"
+    assert s["active_branch"] in md, "active_branch must appear in PROJECT_STATE.md"
 
 
 def test_versions_agree_across_files():
@@ -70,12 +68,27 @@ def test_repository_consistent():
     assert "Sir7s/MedicalCLAP" in _md()
 
 
-def test_phase_not_marked_complete_before_approval():
-    """Guard: P0 must not be in completed/approved lists until merged & approved."""
+def test_current_phase_not_also_completed():
+    """A phase cannot be simultaneously 'current' and already completed."""
     s = _state()
-    assert "P0" not in s["completed_phases"]
-    assert "P0" not in s.get("approved_phases", [])
-    assert s["last_approved_exit_report"] is None
+    assert s["current_phase"] not in s["completed_phases"]
+
+
+def test_completion_and_approval_records_consistent():
+    """If any phase is completed, an approved exit report must be recorded; and
+    completed/approved lists must not disagree."""
+    s = _state()
+    completed = s["completed_phases"]
+    approved = s.get("approved_phases", [])
+    if completed:
+        assert s["last_approved_exit_report"], (
+            "completed phases require a recorded last_approved_exit_report"
+        )
+        # every completed phase must also be approved (approval precedes merge)
+        for ph in completed:
+            assert ph in approved, f"completed phase {ph} missing from approved_phases"
+    else:
+        assert s["last_approved_exit_report"] is None
 
 
 if __name__ == "__main__":
