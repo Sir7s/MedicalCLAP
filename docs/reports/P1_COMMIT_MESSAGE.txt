@@ -1,0 +1,23 @@
+P1: local infrastructure & developer experience
+
+Reproducible local dev environment: one command brings up PostgreSQL, Redis,
+Qdrant, a FastAPI backend, and a React/Vite frontend, all bound to 127.0.0.1.
+
+- S1: infra/docker-compose.yml with digest-pinned images (postgres:16-alpine,
+      redis:7-alpine, qdrant/qdrant:v1.18.2); .env.example; digests recorded in
+      VERSION_LOCK.md.
+- S2: datastores up, healthchecked, loopback-only; integration tests.
+- S3: FastAPI skeleton (/health) + React/Vite/TS skeleton; digest-pinned
+      Dockerfiles; backend + frontend images build.
+- S4: pydantic-settings config, JSON structured logging, CORS, and a
+      datastore-aware /health/ready readiness probe; cross-service test.
+- S5: scripts/dev_up.sh (one-command up) + scripts/env_check.sh preflight +
+      docs/DEVELOPMENT.md; WSL2 named-volume permission test.
+- S6: CI extended (governance/backend/frontend/security/compose lanes); local
+      CI mirror extended.
+
+All services report healthy via `bash scripts/dev_up.sh`. Loopback-only binding
+verified. Architecture deviation: none. No app dependencies pinned beyond what
+P1 introduces (H-01).
+
+Co-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>

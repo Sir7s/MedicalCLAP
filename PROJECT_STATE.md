@@ -6,10 +6,10 @@
 **Architecture version:** 2.4.5 (`final_freeze_candidate`) · **Master Plan:** v1.0  
 **Current phase:** P1 — Local Infrastructure and Developer Experience  
 **Active branch:** `phase/P1-infrastructure`  
-**Current subphase:** planning (execution blocked on Docker prerequisite)  
-**Phase status:** Planning — P1 Execution Plan presented; awaiting Docker Desktop + user go-ahead  
+**Current subphase:** S6 complete — P1 in review  
+**Phase status:** In review — P1 delivered; `bash scripts/dev_up.sh` brings up all 5 services healthy; awaiting user approval + PR merge  
 **Completed & merged:** P0 — [PR #1](https://github.com/Sir7s/MedicalCLAP/pull/1) (squash `83f1adc`, merged 2026-07-01)  
-**Next entry gate:** P1 exit — one command starts all base services, reproducible via Docker per docs, no secret/local-path leakage
+**Next entry gate:** P2 — P1 approved & merged → Persistent Database Control Plane
 
 ---
 

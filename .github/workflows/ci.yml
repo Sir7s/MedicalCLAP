@@ -16,48 +16,91 @@ concurrency:
 
 jobs:
   # ---------------------------------------------------------------------------
-  # P0 governance + Python lane: lint, type-check, unit tests, coverage.
-  # (Application code arrives in later phases; this lane validates the
-  #  governance scaffolding and its own validators.)
+  # Governance + scripts lane: lint, type-check, spec lock, unit tests.
   # ---------------------------------------------------------------------------
-  python:
-    name: lint · type · tests
+  governance:
+    name: governance · lint · type · tests
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-
       - name: Set up Python 3.11
         uses: actions/setup-python@v5
         with:
           python-version: "3.11"
-
       - name: Install dev toolchain
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements-dev.txt
-
       - name: Lint (ruff)
-        run: ruff check .
-
+        run: ruff check . backend
       - name: Type check (mypy)
         run: mypy scripts tests
-
-      - name: Spec manifest integrity (--check)
+      - name: Spec manifest integrity
         run: python scripts/spec_manifest.py --check
-
-      - name: Unit tests + coverage
-        run: |
-          pytest --cov --cov-report=term-missing --cov-report=xml \
-                 --junitxml=test-results.xml
-
-      - name: Upload test artifacts
+      - name: Unit tests (governance) + coverage
+        run: pytest tests -q --ignore=tests/infra --cov --cov-report=xml --junitxml=governance-results.xml
+      - name: Upload artifacts
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: python-test-results
+          name: governance-test-results
           path: |
-            test-results.xml
+            governance-results.xml
             coverage.xml
+
+  # ---------------------------------------------------------------------------
+  # Backend lane: install backend deps, lint/type/test the FastAPI app.
+  # ---------------------------------------------------------------------------
+  backend:
+    name: backend · lint · type · tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install backend + tooling
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r backend/requirements.txt
+          pip install ruff==0.15.20 mypy==2.1.0 pytest==9.0.3
+      - name: Lint (ruff)
+        working-directory: backend
+        run: ruff check .
+      - name: Type check (mypy)
+        working-directory: backend
+        run: mypy app
+      - name: Unit tests
+        working-directory: backend
+        run: pytest -q --junitxml=backend-results.xml
+      - name: Upload artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: backend-test-results
+          path: backend/backend-results.xml
+
+  # ---------------------------------------------------------------------------
+  # Frontend lane: install and build the Vite/React app.
+  # ---------------------------------------------------------------------------
+  frontend:
+    name: frontend · build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Node 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - name: Install
+        working-directory: frontend
+        run: npm ci
+      - name: Type-check + build
+        working-directory: frontend
+        run: npm run build
 
   # ---------------------------------------------------------------------------
   # Security & dependency scanning.
@@ -69,58 +112,51 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-
       - name: Secret scan (gitleaks)
         uses: gitleaks/gitleaks-action@v2
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITLEAKS_ENABLE_UPLOAD_ARTIFACT: "false"
-
       - name: Set up Python 3.11
         uses: actions/setup-python@v5
         with:
           python-version: "3.11"
-
-      - name: Install dev toolchain
-        run: pip install -r requirements-dev.txt
-
+      - name: Install audit tooling
+        run: pip install bandit==1.9.4 pip-audit==2.10.1
       - name: SAST (bandit)
-        run: bandit -r scripts -ll
-
-      - name: Dependency audit (pip-audit)
+        run: bandit -r scripts backend/app -ll
+      - name: Dependency audit (dev tools)
         run: pip-audit -r requirements-dev.txt
+      - name: Dependency audit (backend)
+        run: pip-audit -r backend/requirements.txt
 
   # ---------------------------------------------------------------------------
-  # Frontend lane — placeholder until the React app lands in P1+.
-  # Kept green and minimal so the required check exists from P0 onward.
+  # Compose lane: validate the compose file, build app images, bring the stack
+  # up, and run the integration tests against it.
   # ---------------------------------------------------------------------------
-  frontend:
-    name: frontend (placeholder)
+  compose:
+    name: docker compose · integration
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Set up Node 20
-        uses: actions/setup-node@v4
+      - name: Validate compose config
+        run: docker compose -f infra/docker-compose.yml config -q
+      - name: Bring up the stack
+        run: docker compose -f infra/docker-compose.yml up -d --build --wait --wait-timeout 240
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
         with:
-          node-version: "20"
-      - name: Frontend placeholder
-        run: echo "No frontend app yet (arrives in P1+). Lane reserved."
-
-  # ---------------------------------------------------------------------------
-  # Docker build lane — stubbed until docker-compose / Dockerfiles land in P1.
-  # ---------------------------------------------------------------------------
-  docker-build:
-    name: docker build (stub)
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - name: Docker build placeholder
+          python-version: "3.11"
+      - name: Run integration tests
         run: |
-          if ls infra/Dockerfile* >/dev/null 2>&1; then
-            echo "Dockerfiles present — build in the phase that introduces them."
-          else
-            echo "No Dockerfiles yet (arrive in P1). Stub passes."
-          fi
+          pip install pytest==9.0.3
+          pytest tests/infra -q
+      - name: Dump logs on failure
+        if: failure()
+        run: docker compose -f infra/docker-compose.yml logs
+      - name: Tear down
+        if: always()
+        run: docker compose -f infra/docker-compose.yml down -v
 
   # ---------------------------------------------------------------------------
   # Aggregate gate — the single required status check for branch protection.
@@ -128,20 +164,21 @@ jobs:
   ci:
     name: ci
     runs-on: ubuntu-latest
-    needs: [python, security, frontend, docker-build]
+    needs: [governance, backend, frontend, security, compose]
     if: always()
     steps:
       - name: Verify all lanes succeeded
         run: |
-          echo "python=${{ needs.python.result }}"
-          echo "security=${{ needs.security.result }}"
+          echo "governance=${{ needs.governance.result }}"
+          echo "backend=${{ needs.backend.result }}"
           echo "frontend=${{ needs.frontend.result }}"
-          echo "docker-build=${{ needs.docker-build.result }}"
-          test "${{ needs.python.result }}" = "success" \
-            && test "${{ needs.security.result }}" = "success" \
+          echo "security=${{ needs.security.result }}"
+          echo "compose=${{ needs.compose.result }}"
+          test "${{ needs.governance.result }}" = "success" \
+            && test "${{ needs.backend.result }}" = "success" \
             && test "${{ needs.frontend.result }}" = "success" \
-            && test "${{ needs.docker-build.result }}" = "success"
-
+            && test "${{ needs.security.result }}" = "success" \
+            && test "${{ needs.compose.result }}" = "success"
       - name: PR summary
         if: always()
         run: |
@@ -150,8 +187,9 @@ jobs:
             echo ""
             echo "| Lane | Result |"
             echo "|---|---|"
-            echo "| python (lint/type/tests) | ${{ needs.python.result }} |"
+            echo "| governance (lint/type/tests) | ${{ needs.governance.result }} |"
+            echo "| backend (lint/type/tests) | ${{ needs.backend.result }} |"
+            echo "| frontend (build) | ${{ needs.frontend.result }} |"
             echo "| security (secrets/sast/deps) | ${{ needs.security.result }} |"
-            echo "| frontend (placeholder) | ${{ needs.frontend.result }} |"
-            echo "| docker-build (stub) | ${{ needs.docker-build.result }} |"
+            echo "| docker compose (integration) | ${{ needs.compose.result }} |"
           } >> "$GITHUB_STEP_SUMMARY"

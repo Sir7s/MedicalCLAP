@@ -1,0 +1,99 @@
+# 3D Medical CLIP — local infrastructure (P1)
+# Datastores only in P1: PostgreSQL (durable truth), Redis (queue/stream/cache),
+# Qdrant (versioned vector index). Backend/frontend join in P1/S3.
+#
+# Security (Architecture v2.4.5 SPEC-08 sec 9.1): every published port is bound
+# to 127.0.0.1 — nothing is exposed on a public interface.
+# Images are pinned by digest (see docs/specs/VERSION_LOCK.md) for reproducibility.
+name: medical-clip-3d
+
+services:
+  postgres:
+    image: postgres:16-alpine@sha256:e013e867e712fec275706a6c51c966f0bb0c93cfa8f51000f85a15f9865a28cb
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-medclip}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-medclip_dev_only}
+      POSTGRES_DB: ${POSTGRES_DB:-medclip}
+    ports:
+      - "127.0.0.1:${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-medclip} -d ${POSTGRES_DB:-medclip}"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 20s
+    restart: unless-stopped
+
+  redis:
+    image: redis:7-alpine@sha256:6ab0b6e7381779332f97b8ca76193e45b0756f38d4c0dcda72dbb3c32061ab99
+    command: ["redis-server", "--save", "60", "1", "--appendonly", "no"]
+    ports:
+      - "127.0.0.1:${REDIS_PORT:-6379}:6379"
+    volumes:
+      - redisdata:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 10
+      start_period: 5s
+    restart: unless-stopped
+
+  qdrant:
+    image: qdrant/qdrant:v1.18.2@sha256:75eab8c4ba42096724fdcfde8b4de0b5713d529dde32f285a1f86fdcb2c9e50c
+    ports:
+      - "127.0.0.1:${QDRANT_HTTP_PORT:-6333}:6333"
+      - "127.0.0.1:${QDRANT_GRPC_PORT:-6334}:6334"
+    volumes:
+      - qdrantdata:/qdrant/storage
+    healthcheck:
+      # qdrant image ships bash but no curl/wget; use a bash /dev/tcp port probe.
+      test: ["CMD", "bash", "-c", "exec 3<>/dev/tcp/localhost/6333"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+    restart: unless-stopped
+
+  backend:
+    build:
+      context: ../backend
+    environment:
+      POSTGRES_HOST: postgres
+      POSTGRES_PORT: "5432"
+      POSTGRES_USER: ${POSTGRES_USER:-medclip}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-medclip_dev_only}
+      POSTGRES_DB: ${POSTGRES_DB:-medclip}
+      REDIS_HOST: redis
+      REDIS_PORT: "6379"
+      QDRANT_HOST: qdrant
+      QDRANT_PORT: "6333"
+      BACKEND_CORS_ORIGINS: ${BACKEND_CORS_ORIGINS:-http://127.0.0.1:5173,http://localhost:5173}
+    ports:
+      - "127.0.0.1:${BACKEND_PORT:-8000}:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      qdrant:
+        condition: service_healthy
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: ../frontend
+    environment:
+      FRONTEND_PORT: "5173"
+    ports:
+      - "127.0.0.1:${FRONTEND_PORT:-5173}:5173"
+    depends_on:
+      - backend
+    restart: unless-stopped
+
+volumes:
+  pgdata:
+  redisdata:
+  qdrantdata:
