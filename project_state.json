@@ -25,7 +25,7 @@
   ],
   "next_entry_gate": "P2 entry: P1 Exit Report approved and P1 PR merged to main -> Persistent Database Control Plane.",
   "active_branch": "phase/P1-infrastructure",
-  "open_pull_request": null,
+  "open_pull_request": "https://github.com/Sir7s/MedicalCLAP/pull/2",
   "critical_tests": {
     "P0": {
       "test_doc_integrity": "passing",
