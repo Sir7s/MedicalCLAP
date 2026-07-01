@@ -1,0 +1,68 @@
+# ---- Secrets / credentials (NEVER commit — Hard Constraint H-14) ----
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.crt
+*_token
+*_secret
+admin_token*
+secrets/
+credentials/
+
+# ---- Medical data & model artifacts (NEVER commit — Hard Constraint H-13) ----
+# Restricted datasets (CT-RATE, ReXGroundingCT, BIMCV-R) and any PHI-bearing files.
+data/
+datasets/
+*.nii
+*.nii.gz
+*.dcm
+*.npy
+*.npz
+checkpoints/
+*.ckpt
+*.pt
+*.pth
+*.onnx
+*.safetensors
+qdrant_storage/
+pgdata/
+
+# ---- Python ----
+__pycache__/
+*.py[cod]
+*.egg-info/
+.eggs/
+build/
+dist/
+.venv/
+venv/
+env/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+.coverage.*
+coverage.xml
+htmlcov/
+
+# ---- Node / frontend ----
+node_modules/
+frontend/dist/
+frontend/.vite/
+npm-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# ---- OS / editor ----
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
+
+# ---- Build / temp ----
+*.log
+tmp/
+.tmp/

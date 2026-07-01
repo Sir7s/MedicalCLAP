@@ -1,0 +1,39 @@
+name: Bug report
+description: Report a defect, failing test, or architecture inconsistency.
+title: "[bug] <short title>"
+labels: ["bug"]
+body:
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+    validations:
+      required: true
+  - type: textarea
+    id: repro
+    attributes:
+      label: Reproduction steps
+  - type: dropdown
+    id: kind
+    attributes:
+      label: Category
+      description: Architecture inconsistencies trigger the Architecture Update Flow, not a direct code fix.
+      options:
+        - functional bug
+        - test failure
+        - architecture inconsistency
+        - security / privacy
+        - data integrity / recovery
+    validations:
+      required: true
+  - type: input
+    id: phase
+    attributes:
+      label: Phase observed in
+      placeholder: P0

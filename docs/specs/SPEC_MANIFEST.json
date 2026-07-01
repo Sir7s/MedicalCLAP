@@ -1,0 +1,50 @@
+{
+  "manifest_version": "1.0",
+  "generated_for_phase": "P0",
+  "architecture_bundle_version": "2.4.5",
+  "hash_algorithm": "sha256",
+  "bundle_line_format": "SPEC_ID + NUL + VERSION + NUL + lowercase_hex_sha256 + LF",
+  "documents": [
+    {
+      "spec_id": "DOC-ARCH",
+      "name": "Architecture Specification Bundle",
+      "version": "2.4.5",
+      "status": "final_freeze_candidate",
+      "path": "docs/specs/3D_Medical_CLIP_Architecture_v2.4.5_CN.pdf",
+      "mandatory": true,
+      "size_bytes": 624794,
+      "sha256": "d7f98c0baeb933e6cbd18824f407e2fce93cd5f26691499d4adb932945117146"
+    },
+    {
+      "spec_id": "DOC-MASTER",
+      "name": "Master Phased AI Execution Plan",
+      "version": "1.0",
+      "status": "approved_execution_baseline",
+      "path": "docs/specs/3D_Medical_CLIP_Master_Plan_v1.0_CN.pdf",
+      "mandatory": true,
+      "size_bytes": 911411,
+      "sha256": "e7e72d230f022398cbd46368593837c42c595de561a85790bd6049d89dd7a935"
+    },
+    {
+      "spec_id": "DOC-APPENDIX",
+      "name": "Implementation Appendix",
+      "version": "1.1",
+      "status": "implementation_ready",
+      "path": "docs/specs/3D_Medical_CLIP_Implementation_Appendix_v1.1_CN.pdf",
+      "mandatory": true,
+      "size_bytes": 414255,
+      "sha256": "ded514a4a7908a3ec645ef8ced0d33f3b592900bfacdf524db416e030cd3ae9e"
+    },
+    {
+      "spec_id": "DOC-FREEZE",
+      "name": "Freeze Test Profile",
+      "version": "1.1",
+      "status": "ready_for_execution",
+      "path": "docs/specs/3D_Medical_CLIP_Freeze_Test_Profile_v1.1_CN.pdf",
+      "mandatory": true,
+      "size_bytes": 398113,
+      "sha256": "c5216be79114b087357fdb66ab59652d5846947d7071d9fbe326d24674a7b954"
+    }
+  ],
+  "documents_root_sha256": "a989695c517c1c5f71e8e9d9b929be214e02b3bc257c2cc274de8f40f58c3e92"
+}

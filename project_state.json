@@ -1,0 +1,229 @@
+{
+  "project_name": "3D Medical CLIP",
+  "working_title": "3D Medical CLIP",
+  "repository": "Sir7s/MedicalCLAP",
+  "status_version": "1.0",
+  "last_updated": "2026-06-30",
+  "architecture_version": "2.4.5",
+  "master_plan_version": "1.0",
+  "current_phase": "P0",
+  "current_phase_name": "Specification Lock and Repository Bootstrap",
+  "current_subphase": null,
+  "phase_status": "in_review",
+  "completed_phases": [],
+  "approved_phases": [],
+  "last_approved_exit_report": null,
+  "next_entry_gate": "P0 exit gate: all authoritative documents present and consistent; CI smoke test green; user approves and merges the P0 pull request.",
+  "active_branch": "phase/P0-bootstrap",
+  "open_pull_request": "https://github.com/Sir7s/MedicalCLAP/pull/1",
+  "critical_tests": {
+    "P0": {
+      "test_doc_integrity": "passing",
+      "test_repo_structure": "passing",
+      "test_project_state_sync": "passing"
+    }
+  },
+  "architecture": {
+    "bundle_version": "2.4.5",
+    "document": "Architecture Specification Bundle v2.4.5 — Clean Consolidated Edition",
+    "status": "final_freeze_candidate",
+    "frozen": false,
+    "upgrade_required": false,
+    "change_rule": "If an architecture-related issue is found, stop implementation. Update and review the architecture documentation first, obtain user approval, then update the Master Plan and implementation."
+  },
+  "execution_governance": {
+    "master_plan_version": "1.0",
+    "implementation_appendix_version": "1.1",
+    "freeze_test_profile_version": "1.1",
+    "phase_execution_mode": "Complete all subphases in the current phase sequentially, test each subphase independently, then submit the whole phase for user review.",
+    "user_approval_required_between_phases": true,
+    "phase_exit_report_required": true,
+    "phase_exit_report_effective_when": [
+      "All critical tests pass",
+      "Evidence and deliverables are complete",
+      "User explicitly approves",
+      "Corresponding pull request is merged into main"
+    ],
+    "subphase_parallelism": "forbidden",
+    "architecture_conflict_behavior": "stop_and_wait_for_user_decision",
+    "phase_execution_plan_required": true,
+    "phase_execution_plan_preapproval_required": false
+  },
+  "project_goal": {
+    "primary": "Build a high-quality portfolio project that remains maintainable and extensible.",
+    "timeline_target": "1 month for a showcase-ready version",
+    "weekly_commitment": "25+ hours",
+    "priority_order": [
+      "Complete and reliable CT↔Report retrieval",
+      "Professional product-quality frontend",
+      "History, export, voice and bilingual UX",
+      "Text-guided 3D segmentation if feasible, without sacrificing retrieval"
+    ]
+  },
+  "deployment": {
+    "primary_environment": "Windows 11 + WSL2 Ubuntu + Docker Desktop",
+    "demo_target": "Local execution with reproducibility on other computers through Docker",
+    "single_user": true,
+    "multi_user_authentication": false,
+    "public_github_repository": true,
+    "license": "MIT"
+  },
+  "git_workflow": {
+    "workflow": "GitHub Flow",
+    "branch_model": "One branch and pull request per phase",
+    "merge_target": "main",
+    "issue_policy": "AI decides based on phase complexity and risk",
+    "required_pr_materials": [
+      "Commit message",
+      "Pull request description",
+      "Test summary",
+      "Change log"
+    ]
+  },
+  "ci_cd": {
+    "github_actions": true,
+    "required_checks": [
+      "lint",
+      "type_check",
+      "unit_tests",
+      "integration_tests",
+      "security_scan",
+      "dependency_vulnerability_scan",
+      "docker_build",
+      "coverage_report",
+      "pull_request_summary",
+      "downloadable_test_artifacts"
+    ],
+    "coverage_policy": "Risk-based thresholds by module",
+    "critical_test_policy": "AI classifies criticality and must explain the basis. Architecture consistency, data integrity, security, recovery, core functionality and regression tests are critical by default.",
+    "noncritical_failure_policy": "Allowed only with a Known Issues / Test Exceptions Report."
+  },
+  "data": {
+    "primary_dataset": "CT-RATE",
+    "external_validation_dataset": "BIMCV-R",
+    "segmentation_dataset": "ReXGroundingCT",
+    "future_region_semantics_dataset": "RadGenome-Chest CT",
+    "local_storage_budget": "100–250 GB",
+    "download_strategy": "Prepare the full CT-RATE dataset where practical, but train initially on subsets.",
+    "privacy_rule": "Use public, de-identified data only."
+  },
+  "training": {
+    "primary_cloud": "Google Colab Free",
+    "fallback_cloud": "Kaggle GPU",
+    "local_strategy": "Develop and validate on small subsets locally before cloud training",
+    "image_encoder": "PointNet++",
+    "text_encoder": "BioClinicalBERT",
+    "embedding_dimension": 512,
+    "point_count": 32768,
+    "training_objectives": [
+      "Bidirectional CLIP-style contrastive loss",
+      "Auxiliary multi-label classification loss"
+    ],
+    "retrieval_directions": [
+      "CT-to-Report",
+      "Report-to-CT"
+    ],
+    "retrieval_metrics": [
+      "Recall@1",
+      "Recall@5",
+      "Recall@10",
+      "mAP",
+      "nDCG"
+    ],
+    "ct_clip_policy": "May reference CT-CLIP data processing, training strategy and evaluation methods, but must not load incompatible CT image encoder weights into PointNet++."
+  },
+  "segmentation": {
+    "required_for_final_demo": true,
+    "status": "planned_experimental",
+    "dataset": "ReXGroundingCT",
+    "architecture": "Frozen PointNet++ retrieval encoder + BioClinicalBERT text encoder + text-conditioned 3D segmentation head",
+    "encoder_training_policy": "Freeze the trained retrieval encoder initially and train only the segmentation head",
+    "gate_required": true,
+    "retrieval_has_priority_if_time_conflicts": true
+  },
+  "frontend": {
+    "quality_target": "Near-product professional interface",
+    "design_process": "AI presents 3 visual directions and key page mockups before implementation; user selects one.",
+    "language": "Chinese and English toggle",
+    "text_retrieval_language": "Chinese and English input; Chinese is translated locally into English before retrieval",
+    "translation_priority": "Lightweight and fast local model",
+    "voice_input": "English voice only",
+    "viewer": {
+      "orthogonal_views": true,
+      "volume_rendering": true,
+      "window_width_level": true,
+      "annotation_type": "polygon",
+      "single_ct_only": true
+    },
+    "required_features": [
+      "3D CT viewer",
+      "CT-only retrieval",
+      "Text-only retrieval",
+      "Report display",
+      "Task status",
+      "Full history",
+      "PDF export",
+      "JSON export",
+      "English voice input",
+      "Chinese/English interface"
+    ],
+    "report_generation": "No generated radiology report; show retrieved similar reports, similarity and segmentation results."
+  },
+  "history": {
+    "required": true,
+    "profiles": [
+      "lightweight",
+      "full_archive",
+      "re_executable"
+    ],
+    "default_profile": "lightweight",
+    "save_ct": "Required for complete history where the selected profile calls for it"
+  },
+  "documents": {
+    "architecture_pdf": "3D_Medical_CLIP_Architecture_v2.4.5_CN.pdf",
+    "master_plan_pdf": "3D_Medical_CLIP_Master_Plan_v1.0_CN.pdf",
+    "implementation_appendix_pdf": "3D_Medical_CLIP_Implementation_Appendix_v1.1_CN.pdf",
+    "freeze_test_profile_pdf": "3D_Medical_CLIP_Freeze_Test_Profile_v1.1_CN.pdf",
+    "startup_prompt_version": "1.0"
+  },
+  "hard_constraints": [
+    "Do not skip or reorder phases.",
+    "Do not execute subphases in parallel.",
+    "Do not enter the next phase without user approval.",
+    "Do not bypass, weaken or delete tests to obtain a pass.",
+    "Do not fabricate test, training or evaluation results.",
+    "Do not silently modify architecture-related behavior in code.",
+    "When an architecture-related problem is found, stop implementation and update the architecture documentation first.",
+    "Do not change database schemas without recorded migration and documentation.",
+    "Do not perform irreversible operations without user approval.",
+    "Do not delete important data or overwrite important files without user approval.",
+    "Do not merge a phase pull request until required tests pass and the user approves.",
+    "All training runs must record configuration, random seed, code revision and dataset revision.",
+    "All failures and exceptions must be recorded.",
+    "Phase Exit Reports are the authoritative phase-status records after approval and merge."
+  ],
+  "current_known_issues": [],
+  "pending_decisions": [
+    "Exact dependency versions and image digests will be locked during P0.",
+    "Exact Celery/Redis broker parameters will be locked during the control-plane phases.",
+    "Exact PointNet++ layer configuration and training hyperparameters will be selected through small-scale experiments.",
+    "Exact lightweight local Chinese-to-English translation model will be selected during the translation phase.",
+    "Final frontend visual direction will be selected from three AI-generated design proposals."
+  ],
+  "next_action": {
+    "phase": "P0",
+    "instruction": "Generate the P0 Phase Execution Plan, verify all authoritative documents, lock repository standards and dependencies, initialize GitHub Flow and CI, then execute P0 subphases sequentially.",
+    "requires_user_approval_before_start": false,
+    "requires_user_approval_before_next_phase": true
+  },
+  "state_authority": {
+    "primary": "Approved and merged Phase Exit Report",
+    "supporting": [
+      "Git repository state",
+      "CI results",
+      "PROJECT_STATE.md",
+      "project_state.json"
+    ],
+    "conflict_policy": "Stop execution, run a consistency audit, report the mismatch and wait for the user's decision."
+  }
+}

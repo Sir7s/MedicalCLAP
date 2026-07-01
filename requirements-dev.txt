@@ -1,0 +1,9 @@
+# P0 toolchain lock — governance / CI tooling only.
+# Application dependencies (FastAPI, torch, vtk.js, qdrant-client, ...) are
+# introduced and pinned in the phases that add them (P1+), per Hard Constraint H-01.
+pytest==9.0.3
+pytest-cov==7.1.0
+ruff==0.15.20
+mypy==2.1.0
+bandit==1.9.4
+pip-audit==2.10.1
