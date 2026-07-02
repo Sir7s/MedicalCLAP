@@ -6,7 +6,9 @@ Guards Hard Constraints H-13 (no restricted data / weights) and H-14
 """
 from __future__ import annotations
 
+import fnmatch
 import re
+import subprocess
 from pathlib import Path
 
 import pytest
@@ -66,6 +68,23 @@ def _iter_files():
             yield p
 
 
+def _tracked_files() -> list[Path]:
+    """Files actually tracked by git (i.e. committed / staged) — the true scope
+    of the public-repo safety guards. Gitignored local files (e.g. infra/.env,
+    local datasets) are correctly excluded. Falls back to a filesystem walk if
+    git is unavailable."""
+    try:
+        out = subprocess.run(
+            ["git", "ls-files", "-z"],
+            cwd=REPO_ROOT, capture_output=True, text=True, timeout=30,
+        )
+        if out.returncode == 0:
+            return [REPO_ROOT / rel for rel in out.stdout.split("\0") if rel]
+    except (OSError, subprocess.SubprocessError):
+        pass
+    return list(_iter_files())
+
+
 @pytest.mark.parametrize("rel", REQUIRED_FILES)
 def test_required_file_exists(rel):
     assert (REPO_ROOT / rel).is_file(), f"required file missing: {rel}"
@@ -89,21 +108,21 @@ def test_readme_has_medical_disclaimer():
 
 
 def test_no_forbidden_data_or_weight_files():
+    """No restricted data / model weights committed to the repo (H-13)."""
     offenders = []
-    for pat in FORBIDDEN_GLOBS:
-        for hit in REPO_ROOT.rglob(pat):
-            if any(part in SCAN_EXCLUDE for part in hit.relative_to(REPO_ROOT).parts):
-                continue
-            offenders.append(str(hit.relative_to(REPO_ROOT)))
-    assert not offenders, f"forbidden data/weight files present (H-13): {offenders}"
+    for p in _tracked_files():
+        name = p.name
+        if any(fnmatch.fnmatch(name, pat) for pat in FORBIDDEN_GLOBS):
+            offenders.append(str(p.relative_to(REPO_ROOT)))
+    assert not offenders, f"forbidden data/weight files tracked by git (H-13): {offenders}"
 
 
 def test_no_env_files_committed():
+    """No .env files committed (H-14). Local, gitignored .env files are fine."""
     offenders = [
         str(p.relative_to(REPO_ROOT))
-        for p in REPO_ROOT.rglob(".env*")
-        if p.is_file() and p.name != ".env.example"
-        and not any(part in SCAN_EXCLUDE for part in p.relative_to(REPO_ROOT).parts)
+        for p in _tracked_files()
+        if p.name.startswith(".env") and p.name != ".env.example"
     ]
     assert not offenders, f".env files must not be committed (H-14): {offenders}"
 
@@ -126,8 +145,10 @@ TEXT_SUFFIXES = {".py", ".md", ".json", ".yml", ".yaml", ".sh", ".txt", ".toml",
 
 def test_no_obvious_secrets_in_text():
     offenders = []
-    for p in _iter_files():
+    for p in _tracked_files():
         if p.suffix.lower() not in TEXT_SUFFIXES:
+            continue
+        if not p.is_file():
             continue
         try:
             txt = p.read_text(encoding="utf-8")

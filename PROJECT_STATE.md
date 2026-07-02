@@ -1,13 +1,15 @@
 # 3D Medical CLIP — PROJECT STATE
 
 **State version:** 1.0  
-**Last updated:** 2026-06-30  
+**Last updated:** 2026-07-01  
 **Repository:** Sir7s/MedicalCLAP  
 **Architecture version:** 2.4.5 (`final_freeze_candidate`) · **Master Plan:** v1.0  
-**Current phase:** P0 — Specification Lock and Repository Bootstrap  
-**Current subphase:** S5 (CI) → S6 (PR)  
-**Phase status:** In review — [PR #1](https://github.com/Sir7s/MedicalCLAP/pull/1) open; not yet approved/merged  
-**Next entry gate:** P0 exit — all authoritative docs present & consistent, CI smoke green, user approves & merges P0 PR
+**Current phase:** P1 — Local Infrastructure and Developer Experience  
+**Active branch:** `phase/P1-infrastructure`  
+**Current subphase:** S6 complete — P1 in review  
+**Phase status:** In review — P1 delivered; `bash scripts/dev_up.sh` brings up all 5 services healthy; awaiting user approval + PR merge  
+**Completed & merged:** P0 — [PR #1](https://github.com/Sir7s/MedicalCLAP/pull/1) (squash `83f1adc`, merged 2026-07-01)  
+**Next entry gate:** P2 — P1 approved & merged → Persistent Database Control Plane
 
 ---
 
@@ -45,7 +47,7 @@ Priority order:
 
 ### P0 — Specification Lock and Repository Bootstrap
 
-**Status:** In progress (branch `phase/P0-bootstrap`)
+**Status:** ✅ Completed, approved, and merged to `main` (PR #1, squash `83f1adc`, 2026-07-01). Now in **P1 — Local Infrastructure and Developer Experience** (planning).
 
 P0 should begin by:
 

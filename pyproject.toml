@@ -19,7 +19,10 @@ testpaths = ["tests"]
 addopts = "-q"
 
 [tool.mypy]
-python_version = "3.11"
+# 3.12 here only affects the dev/governance scripts + tests (not shipped in the
+# 3.11 runtime container); it avoids a false positive parsing newer numpy stubs
+# that land in the local interpreter via backend deps.
+python_version = "3.12"
 ignore_missing_imports = true
 exclude = ["frontend/", "docs/"]
 

@@ -23,11 +23,13 @@ run() {
   fi
 }
 
-run "lint (ruff)"                 "$PYTHON" -m ruff check .
-run "type check (mypy)"           "$PYTHON" -m mypy scripts tests
+run "lint (ruff)"                 "$PYTHON" -m ruff check . backend
+run "type check (mypy, root)"     "$PYTHON" -m mypy scripts tests
+run "type check (mypy, backend)"  bash -c "cd '$(pwd)/backend' && '$PYTHON' -m mypy app"
 run "spec manifest integrity"     "$PYTHON" scripts/spec_manifest.py --check
 run "unit tests + coverage"       "$PYTHON" -m pytest --cov --cov-report=term-missing
-run "SAST (bandit)"               "$PYTHON" -m bandit -r scripts -ll
+run "backend unit tests"          bash -c "cd '$(pwd)/backend' && '$PYTHON' -m pytest -q"
+run "SAST (bandit)"               "$PYTHON" -m bandit -r scripts backend/app -ll
 run "dependency audit (pip-audit)" "$PYTHON" -m pip_audit -r requirements-dev.txt
 
 echo ""

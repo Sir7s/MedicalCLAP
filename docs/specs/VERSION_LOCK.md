@@ -43,7 +43,20 @@ pinned here — they are introduced and locked in the phases that add them
 | Secret scan | gitleaks (action-pinned by SHA in CI) | `.github/workflows/ci.yml` |
 | SAST | bandit (pinned) | `requirements-dev.txt` |
 | Dependency audit | pip-audit (pinned) | `requirements-dev.txt` |
-| Base container digest | locked in P1 with `docker-compose.yml` | (deferred — P1) |
+| Datastore images | pinned by digest (below) | `infra/docker-compose.yml` |
+
+## Container image digest locks (P1)
+
+Pinned in `infra/docker-compose.yml` for reproducible local infrastructure:
+
+| Service | Image + tag | Digest |
+|---|---|---|
+| PostgreSQL | `postgres:16-alpine` | `sha256:e013e867e712fec275706a6c51c966f0bb0c93cfa8f51000f85a15f9865a28cb` |
+| Redis | `redis:7-alpine` | `sha256:6ab0b6e7381779332f97b8ca76193e45b0756f38d4c0dcda72dbb3c32061ab99` |
+| Qdrant | `qdrant/qdrant:v1.18.2` | `sha256:75eab8c4ba42096724fdcfde8b4de0b5713d529dde32f285a1f86fdcb2c9e50c` |
+
+Application images (backend/frontend) are built from local Dockerfiles introduced
+in P1/S3.
 
 ## Living (unpinned) state
 
