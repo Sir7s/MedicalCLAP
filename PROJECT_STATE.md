@@ -4,12 +4,12 @@
 **Last updated:** 2026-07-01  
 **Repository:** Sir7s/MedicalCLAP  
 **Architecture version:** 2.4.5 (`final_freeze_candidate`) · **Master Plan:** v1.0  
-**Current phase:** P1 — Local Infrastructure and Developer Experience  
-**Active branch:** `phase/P1-infrastructure`  
-**Current subphase:** S6 complete — P1 in review  
-**Phase status:** In review — P1 delivered; `bash scripts/dev_up.sh` brings up all 5 services healthy; awaiting user approval + PR merge  
-**Completed & merged:** P0 — [PR #1](https://github.com/Sir7s/MedicalCLAP/pull/1) (squash `83f1adc`, merged 2026-07-01)  
-**Next entry gate:** P2 — P1 approved & merged → Persistent Database Control Plane
+**Current phase:** P2 — Persistent Database Control Plane  
+**Active branch:** `phase/P2-control-plane`  
+**Current subphase:** S6 complete — P2 in review  
+**Phase status:** In review — control plane delivered (74 tests green); awaiting user approval + PR merge  
+**Completed & merged:** P0 ([PR #1](https://github.com/Sir7s/MedicalCLAP/pull/1), `83f1adc`) · P1 ([PR #2](https://github.com/Sir7s/MedicalCLAP/pull/2), `14bcafe`)  
+**Next entry gate:** P3 — P2 approved & merged → Command & Event Outbox
 
 ---
 

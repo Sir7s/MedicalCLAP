@@ -1,0 +1,23 @@
+P2: persistent database control plane
+
+Core control-plane persistence on PostgreSQL with an all-or-nothing task
+creation transaction. No future-phase runtime behavior (H-01).
+
+- S1: SQLAlchemy 2.0 + Alembic wired to settings DSN; migration up/down/up verified.
+- S2: 9 core tables (workspace_sessions, application_tasks, task_attempts,
+      model_jobs, command_outbox, outbox_events, idempotency_records,
+      audit_events, dead_letter_commands); CHECK-constrained state columns;
+      child FKs ON DELETE RESTRICT (SPEC-02).
+- S3: state machines for workspace/task/attempt/model_job/command with
+      assert_transition (SPEC-02 §3.3/3.4, SPEC-03 §4.2).
+- S4: repository helpers — guarded transitions, audit append, monotonic
+      event-sequence / attempt-number allocation.
+- S5: create_task atomic transaction (SPEC-03 §4.1 subset): lock workspace,
+      create attempt+job, inc task count, write event+command outbox, all-or-
+      nothing; idempotency via unique key (sequential + concurrent).
+- S6: CI compose lane migrates the DB and runs control-plane integration tests.
+
+74 tests pass. Deployment-reference binding in the creation tx is deferred to
+P13 (documented seam). Architecture deviation: none.
+
+Co-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>
