@@ -33,7 +33,7 @@
   ],
   "next_entry_gate": "P3 entry: P2 Exit Report approved and P2 PR merged to main -> Command & Event Outbox dispatcher.",
   "active_branch": "phase/P2-control-plane",
-  "open_pull_request": null,
+  "open_pull_request": "https://github.com/Sir7s/MedicalCLAP/pull/3",
   "critical_tests": {
     "P0": {
       "test_doc_integrity": "passing",
