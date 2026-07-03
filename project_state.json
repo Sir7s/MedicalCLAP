@@ -6,13 +6,13 @@
   "last_updated": "2026-07-01",
   "architecture_version": "2.4.5",
   "master_plan_version": "1.0",
-  "current_phase": "P1",
-  "current_phase_name": "Local Infrastructure and Developer Experience",
+  "current_phase": "P2",
+  "current_phase_name": "Persistent Database Control Plane",
   "current_subphase": null,
   "phase_status": "in_review",
-  "completed_phases": ["P0"],
-  "approved_phases": ["P0"],
-  "last_approved_exit_report": "docs/reports/P0_EXIT_REPORT.md",
+  "completed_phases": ["P0", "P1"],
+  "approved_phases": ["P0", "P1"],
+  "last_approved_exit_report": "docs/reports/P1_EXIT_REPORT.md",
   "phase_history": [
     {
       "phase": "P0",
@@ -21,11 +21,19 @@
       "merge_commit": "83f1adc",
       "merged_at": "2026-07-01",
       "result": "approved_and_merged"
+    },
+    {
+      "phase": "P1",
+      "name": "Local Infrastructure and Developer Experience",
+      "pull_request": "https://github.com/Sir7s/MedicalCLAP/pull/2",
+      "merge_commit": "14bcafe",
+      "merged_at": "2026-07-01",
+      "result": "approved_and_merged"
     }
   ],
-  "next_entry_gate": "P2 entry: P1 Exit Report approved and P1 PR merged to main -> Persistent Database Control Plane.",
-  "active_branch": "phase/P1-infrastructure",
-  "open_pull_request": "https://github.com/Sir7s/MedicalCLAP/pull/2",
+  "next_entry_gate": "P3 entry: P2 Exit Report approved and P2 PR merged to main -> Command & Event Outbox dispatcher.",
+  "active_branch": "phase/P2-control-plane",
+  "open_pull_request": "https://github.com/Sir7s/MedicalCLAP/pull/3",
   "critical_tests": {
     "P0": {
       "test_doc_integrity": "passing",
@@ -38,6 +46,15 @@
       "cross_service_reachability": "passing",
       "wsl2_volume_permission": "passing",
       "no_secret_or_data_committed": "passing"
+    },
+    "P2": {
+      "migration_up_down": "passing",
+      "atomic_task_creation": "passing",
+      "atomic_rollback_no_partial_commit": "passing",
+      "idempotency_concurrent": "passing",
+      "illegal_state_rejected": "passing",
+      "fk_ondelete_restrict": "passing",
+      "state_machine_legality": "passing"
     }
   },
   "architecture": {
