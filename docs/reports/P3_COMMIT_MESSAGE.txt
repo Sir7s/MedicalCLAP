@@ -1,0 +1,20 @@
+P3: command & event outbox
+
+Reliable delivery from the DB to the execution queue and event stream, with
+crash recovery, dedup, and a dead-letter protocol. No future-phase runtime (H-01).
+
+- S1: Command Dispatcher over Redis Streams — pending->dispatching (commit)->
+      XADD->dispatched (commit); recovery scan re-dispatches stuck commands.
+- S2: Event Outbox Publisher — ordered by sequence, idempotent publish mark.
+- S3: Dead-letter protocol (IMP-EXEC-001/002) — invalid messages persisted +
+      audited + ACKed; never auto-replayed.
+- S4: mock supervisor consumer group — validate + generation handling
+      (IMP-EXEC-004) + dedup by (command,generation) + ACK; XAUTOCLAIM pending
+      recovery.
+- S5: failpoint framework (env-gated) + crash/recovery tests covering
+      FR-EXEC-001/002/005/011 and pending-claim.
+
+82 tests pass. Consumer processing is a mock in P3 (lease/fencing/GPU worker = P4).
+Architecture deviation: none.
+
+Co-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>
