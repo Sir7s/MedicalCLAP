@@ -4,12 +4,12 @@
 **Last updated:** 2026-07-01  
 **Repository:** Sir7s/MedicalCLAP  
 **Architecture version:** 2.4.5 (`final_freeze_candidate`) · **Master Plan:** v1.0  
-**Current phase:** P2 — Persistent Database Control Plane  
-**Active branch:** `phase/P2-control-plane`  
-**Current subphase:** S6 complete — P2 in review  
-**Phase status:** In review — control plane delivered (74 tests green); awaiting user approval + PR merge  
-**Completed & merged:** P0 ([PR #1](https://github.com/Sir7s/MedicalCLAP/pull/1), `83f1adc`) · P1 ([PR #2](https://github.com/Sir7s/MedicalCLAP/pull/2), `14bcafe`)  
-**Next entry gate:** P3 — P2 approved & merged → Command & Event Outbox
+**Current phase:** P3 — Command and Event Outbox  
+**Active branch:** `phase/P3-outbox`  
+**Current subphase:** S6 complete — P3 in review  
+**Phase status:** In review — outbox/dispatcher/consumer delivered (82 tests green); awaiting user approval + PR merge  
+**Completed & merged:** P0 ([PR #1](https://github.com/Sir7s/MedicalCLAP/pull/1), `83f1adc`) · P1 ([PR #2](https://github.com/Sir7s/MedicalCLAP/pull/2), `14bcafe`) · P2 ([PR #3](https://github.com/Sir7s/MedicalCLAP/pull/3), `84dcef9`)  
+**Next entry gate:** P4 — P3 approved & merged → Supervisor, Lease, Fencing & Mock Worker
 
 ---
 
