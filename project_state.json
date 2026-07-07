@@ -6,13 +6,25 @@
   "last_updated": "2026-07-01",
   "architecture_version": "2.4.5",
   "master_plan_version": "1.0",
-  "current_phase": "P4",
-  "current_phase_name": "Supervisor, Lease, Fencing and Mock Worker",
+  "current_phase": "P5",
+  "current_phase_name": "Artifact, Workspace and Lightweight History",
   "current_subphase": null,
   "phase_status": "in_review",
-  "completed_phases": ["P0", "P1", "P2", "P3"],
-  "approved_phases": ["P0", "P1", "P2", "P3"],
-  "last_approved_exit_report": "docs/reports/P3_EXIT_REPORT.md",
+  "completed_phases": [
+    "P0",
+    "P1",
+    "P2",
+    "P3",
+    "P4"
+  ],
+  "approved_phases": [
+    "P0",
+    "P1",
+    "P2",
+    "P3",
+    "P4"
+  ],
+  "last_approved_exit_report": "docs/reports/P4_EXIT_REPORT.md",
   "phase_history": [
     {
       "phase": "P0",
@@ -45,11 +57,20 @@
       "merge_commit": "aeac92a",
       "merged_at": "2026-07-03",
       "result": "approved_and_merged"
+    },
+    {
+      "phase": "P4",
+      "name": "Supervisor, Lease, Fencing and Mock Worker",
+      "pull_request": "https://github.com/Sir7s/MedicalCLAP/pull/5",
+      "merge_commit": "5d5b188",
+      "merged_at": "2026-07-07",
+      "result": "approved_and_merged",
+      "approval_note": "Merge pre-authorized by user 2026-07-07 conditional on green CI; CI green."
     }
   ],
-  "next_entry_gate": "P5 entry: P4 Exit Report approved and P4 PR merged to main -> Artifact, Workspace & Lightweight History.",
-  "active_branch": "phase/P4-supervisor",
-  "open_pull_request": "https://github.com/Sir7s/MedicalCLAP/pull/5",
+  "next_entry_gate": "P6 entry: P5 Exit Report approved and P5 PR merged to main -> Minimum Control Plane Validation.",
+  "active_branch": "phase/P5-artifacts",
+  "open_pull_request": null,
   "critical_tests": {
     "P0": {
       "test_doc_integrity": "passing",
@@ -89,6 +110,15 @@
       "forced_cancel_no_result": "passing",
       "nonce_replay_rejected": "passing",
       "watchdog_semantics": "passing"
+    },
+    "P5": {
+      "artifact_crash_consistency": "passing",
+      "snapshot_immutability": "passing",
+      "reference_anti_gc": "passing",
+      "history_crash_recovery": "passing",
+      "late_chunk_rejected": "passing",
+      "chunk_continuity_and_corruption": "passing",
+      "concurrent_reservation_no_oversell": "passing"
     }
   },
   "architecture": {

@@ -1,0 +1,24 @@
+P5: artifact, workspace & lightweight history
+
+Atomic artifact finalize, lease-revision workspace layout, dual reference
+lifecycles, storage reservation with atomic quota checks, and the lightweight
+history state machine with chunked artifacts + verification seal (H-01: no
+future-phase features).
+
+- S1: workspace volume layout; artifact dirs embed lease revision (SPEC-04 §5.3).
+- S2: .partial -> fsync -> sha256 -> atomic rename -> manifest; finalized files
+      read-only; incomplete artifacts invisible (crash-tested via failpoint).
+- S3: migration 6bf5810a8f42 — history_records/save_operations/artifacts/chunks,
+      workspace_source_references, history_snapshot_references, storage_quotas,
+      storage_reservations; IMP-HIST-001/002 reference order enforced.
+- S4: storage reservation with locked quota row + active-sum check
+      (IMP-STOR-001/002/003); concurrent reservations cannot oversell.
+- S5: lightweight history save flow preparing->snapshotting->writing_artifacts
+      ->verifying->ready; 8MB chunked artifacts; verification seal
+      (IMP-HIST-003/004): late chunks rejected, gaps/tampering -> corrupted;
+      only ready records visible; History API v0 (save/list/get).
+
+115 tests pass (FR-STOR-001/003/005/006/007/009/012 subsets + crash stages).
+Architecture deviation: none.
+
+Co-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>
