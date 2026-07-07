@@ -33,6 +33,10 @@ async def lifespan(_app: FastAPI):
 
 app = FastAPI(title="3D Medical CLIP API", version=__version__, lifespan=lifespan)
 
+from .history.api import router as history_router  # noqa: E402
+
+app.include_router(history_router)
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=settings.cors_origins,

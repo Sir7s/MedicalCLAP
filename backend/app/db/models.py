@@ -23,6 +23,7 @@ from sqlalchemy import (
     DateTime,
     ForeignKey,
     Integer,
+    LargeBinary,
     String,
     Text,
     UniqueConstraint,
@@ -39,7 +40,11 @@ from .states import (
     COMMAND_RESOLUTION_TYPES,
     COMMAND_STATES,
     DEAD_LETTER_RESOLUTIONS,
+    HISTORY_ARTIFACT_STATES,
+    HISTORY_STATES,
     MODEL_JOB_STATES,
+    REFERENCE_STATUSES,
+    RESERVATION_STATUSES,
     TASK_STATES,
     WORKSPACE_STATES,
 )
@@ -264,3 +269,165 @@ class DeadLetterCommand(Base):
     resolved_by: Mapped[str | None] = mapped_column(String(128))
     resolved_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     resolution_note: Mapped[str | None] = mapped_column(Text)
+
+
+# --- P5: history, references, storage reservation (SPEC-04/05) ---------------
+
+
+class HistoryRecord(Base):
+    __tablename__ = "history_records"
+    __table_args__ = (_in_check("state", HISTORY_STATES, "ck_history_state"),)
+
+    id: Mapped[uuid.UUID] = _uuid_pk()
+    workspace_id: Mapped[uuid.UUID] = mapped_column(
+        ForeignKey("workspace_sessions.id", ondelete="RESTRICT"), nullable=False, index=True
+    )
+    profile: Mapped[str] = mapped_column(String(32), nullable=False, default="lightweight")
+    state: Mapped[str] = mapped_column(String(32), nullable=False, default="preparing")
+    title: Mapped[str | None] = mapped_column(String(256))
+    meta: Mapped[dict | None] = mapped_column(JSONB)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), nullable=False, server_default=func.now()
+    )
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), nullable=False, server_default=func.now(), onupdate=func.now()
+    )
+
+
+class HistorySaveOperation(Base):
+    __tablename__ = "history_save_operations"
+
+    id: Mapped[uuid.UUID] = _uuid_pk()
+    history_record_id: Mapped[uuid.UUID] = mapped_column(
+        ForeignKey("history_records.id", ondelete="RESTRICT"), nullable=False, index=True
+    )
+    workspace_id: Mapped[uuid.UUID] = mapped_column(
+        ForeignKey("workspace_sessions.id", ondelete="RESTRICT"), nullable=False
+    )
+    snapshot_manifest_sha256: Mapped[str | None] = mapped_column(String(64))
+    snapshot_path: Mapped[str | None] = mapped_column(Text)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), nullable=False, server_default=func.now()
+    )
+
+
+class HistoryArtifact(Base):
+    __tablename__ = "history_artifacts"
+    __table_args__ = (
+        _in_check("storage_status", HISTORY_ARTIFACT_STATES, "ck_history_artifact_status"),
+    )
+
+    id: Mapped[uuid.UUID] = _uuid_pk()
+    history_record_id: Mapped[uuid.UUID] = mapped_column(
+        ForeignKey("history_records.id", ondelete="RESTRICT"), nullable=False, index=True
+    )
+    name: Mapped[str] = mapped_column(String(256), nullable=False)
+    storage_status: Mapped[str] = mapped_column(String(32), nullable=False, default="writing")
+    expected_chunk_count: Mapped[int | None] = mapped_column(Integer)
+    expected_total_size: Mapped[int | None] = mapped_column(BigInteger)
+    content_sha256: Mapped[str | None] = mapped_column(String(64))
+    verification_generation: Mapped[int] = mapped_column(BigInteger, nullable=False, default=0)
+    verification_started_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), nullable=False, server_default=func.now()
+    )
+
+
+class HistoryArtifactChunk(Base):
+    __tablename__ = "history_artifact_chunks"
+    __table_args__ = (
+        UniqueConstraint("artifact_id", "chunk_index", name="uq_chunk_artifact_index"),
+    )
+
+    id: Mapped[uuid.UUID] = _uuid_pk()
+    artifact_id: Mapped[uuid.UUID] = mapped_column(
+        ForeignKey("history_artifacts.id", ondelete="RESTRICT"), nullable=False, index=True
+    )
+    chunk_index: Mapped[int] = mapped_column(Integer, nullable=False)
+    size_bytes: Mapped[int] = mapped_column(Integer, nullable=False)
+    sha256: Mapped[str] = mapped_column(String(64), nullable=False)
+    data: Mapped[bytes] = mapped_column(LargeBinary, nullable=False)
+
+
+class WorkspaceSourceReference(Base):
+    """IMP-HIST-001 — protects original workspace files until snapshot finalize."""
+
+    __tablename__ = "workspace_source_references"
+    __table_args__ = (
+        _in_check("reference_status", REFERENCE_STATUSES, "ck_source_ref_status"),
+    )
+
+    id: Mapped[uuid.UUID] = _uuid_pk()
+    workspace_id: Mapped[uuid.UUID] = mapped_column(
+        ForeignKey("workspace_sessions.id", ondelete="RESTRICT"), nullable=False, index=True
+    )
+    save_operation_id: Mapped[uuid.UUID] = mapped_column(
+        ForeignKey("history_save_operations.id", ondelete="RESTRICT"), nullable=False
+    )
+    reference_status: Mapped[str] = mapped_column(String(32), nullable=False, default="active")
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), nullable=False, server_default=func.now()
+    )
+    released_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+
+
+class HistorySnapshotReference(Base):
+    """IMP-HIST-001 — protects the snapshot until history ready / safe cleanup."""
+
+    __tablename__ = "history_snapshot_references"
+    __table_args__ = (
+        _in_check("reference_status", REFERENCE_STATUSES, "ck_snapshot_ref_status"),
+    )
+
+    id: Mapped[uuid.UUID] = _uuid_pk()
+    save_operation_id: Mapped[uuid.UUID] = mapped_column(
+        ForeignKey("history_save_operations.id", ondelete="RESTRICT"), nullable=False, index=True
+    )
+    snapshot_manifest_sha256: Mapped[str] = mapped_column(String(64), nullable=False)
+    snapshot_path: Mapped[str] = mapped_column(Text, nullable=False)
+    reference_status: Mapped[str] = mapped_column(String(32), nullable=False, default="active")
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), nullable=False, server_default=func.now()
+    )
+    released_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+
+
+class StorageQuota(Base):
+    """Quota row per (backend, filesystem) — locked for atomic reservation checks."""
+
+    __tablename__ = "storage_quotas"
+    __table_args__ = (
+        UniqueConstraint("storage_backend", "filesystem_identity", name="uq_quota_backend_fs"),
+    )
+
+    id: Mapped[uuid.UUID] = _uuid_pk()
+    storage_backend: Mapped[str] = mapped_column(String(64), nullable=False)
+    filesystem_identity: Mapped[str] = mapped_column(String(256), nullable=False)
+    quota_bytes: Mapped[int] = mapped_column(BigInteger, nullable=False)
+
+
+class StorageReservation(Base):
+    """IMP-STOR-001 — durable space reservation preceding large file operations."""
+
+    __tablename__ = "storage_reservations"
+    __table_args__ = (
+        _in_check("reservation_status", RESERVATION_STATUSES, "ck_reservation_status"),
+    )
+
+    id: Mapped[uuid.UUID] = _uuid_pk()
+    reservation_type: Mapped[str] = mapped_column(String(64), nullable=False)
+    workspace_id: Mapped[uuid.UUID | None] = mapped_column(
+        ForeignKey("workspace_sessions.id", ondelete="RESTRICT")
+    )
+    operation_id: Mapped[str | None] = mapped_column(String(128))
+    storage_backend: Mapped[str] = mapped_column(String(64), nullable=False)
+    filesystem_identity: Mapped[str] = mapped_column(String(256), nullable=False)
+    reserved_bytes: Mapped[int] = mapped_column(BigInteger, nullable=False)
+    consumed_bytes: Mapped[int] = mapped_column(BigInteger, nullable=False, default=0)
+    reservation_status: Mapped[str] = mapped_column(String(32), nullable=False, default="active")
+    owner_instance_id: Mapped[str | None] = mapped_column(String(128))
+    lease_expires_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), nullable=False, server_default=func.now()
+    )
+    released_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))

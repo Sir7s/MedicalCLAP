@@ -117,12 +117,43 @@ DEAD_LETTER_RESOLUTIONS = (
     "unresolved", "acknowledged", "replayed", "discarded", "resolved",
 )
 
+# --- History record (SPEC-05 §6.1) ------------------------------------------
+HISTORY_STATES = (
+    "preparing", "snapshotting", "writing_artifacts", "verifying", "ready",
+    "failed", "cleanup_pending", "deleting", "deleted",
+)
+HISTORY_TRANSITIONS: dict[str, set[str]] = {
+    "preparing": {"snapshotting", "failed"},
+    "snapshotting": {"writing_artifacts", "failed"},
+    "writing_artifacts": {"verifying", "failed"},
+    "verifying": {"ready", "failed"},
+    "ready": {"cleanup_pending"},
+    "failed": {"cleanup_pending"},
+    "cleanup_pending": {"deleting", "failed"},
+    "deleting": {"deleted", "failed"},
+    "deleted": set(),
+}
+
+# --- History artifact storage (SPEC-05 §6.3/6.4; IMP-HIST-003/004) ----------
+HISTORY_ARTIFACT_STATES = ("writing", "verifying", "verified", "corrupted")
+HISTORY_ARTIFACT_TRANSITIONS: dict[str, set[str]] = {
+    "writing": {"verifying", "corrupted"},
+    "verifying": {"verified", "corrupted"},
+    "verified": set(),
+    "corrupted": set(),
+}
+
+REFERENCE_STATUSES = ("active", "released")
+RESERVATION_STATUSES = ("active", "released", "expired")
+
 _MACHINES: dict[str, dict[str, set[str]]] = {
     "workspace": WORKSPACE_TRANSITIONS,
     "task": TASK_TRANSITIONS,
     "attempt": ATTEMPT_TRANSITIONS,
     "model_job": MODEL_JOB_TRANSITIONS,
     "command": COMMAND_TRANSITIONS,
+    "history": HISTORY_TRANSITIONS,
+    "history_artifact": HISTORY_ARTIFACT_TRANSITIONS,
 }
 
 

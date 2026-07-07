@@ -48,11 +48,17 @@ def transition(
     *,
     actor: str = "system",
     write_audit: bool = True,
+    attr: str | None = None,
 ) -> None:
-    """Validate and apply a state transition; raises IllegalTransition if illegal."""
-    old = obj.state  # type: ignore[attr-defined]
+    """Validate and apply a state transition; raises IllegalTransition if illegal.
+
+    `attr` names the state column when it is not literally "state"
+    (e.g. HistoryArtifact.storage_status).
+    """
+    attr = attr or ("storage_status" if machine == "history_artifact" else "state")
+    old = getattr(obj, attr)
     states.assert_transition(machine, old, new_state)
-    obj.state = new_state  # type: ignore[attr-defined]
+    setattr(obj, attr, new_state)
     if write_audit:
         append_audit(
             session,
