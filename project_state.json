@@ -70,7 +70,7 @@
   ],
   "next_entry_gate": "P6 entry: P5 Exit Report approved and P5 PR merged to main -> Minimum Control Plane Validation.",
   "active_branch": "phase/P5-artifacts",
-  "open_pull_request": null,
+  "open_pull_request": "https://github.com/Sir7s/MedicalCLAP/pull/6",
   "critical_tests": {
     "P0": {
       "test_doc_integrity": "passing",
