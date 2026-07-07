@@ -1,0 +1,26 @@
+P4: supervisor, lease, fencing & mock worker
+
+Unique Lease Owner with fencing, two-phase GPU startup handshake against a real
+spawned mock worker, recovery scanner with isolated retry budgets, stage
+watchdog, and forced cancel. No real model execution (that is P11+; H-01).
+
+- S1: supervisor queue consumer (SPEC-03 §4.4) — atomic lease acquisition +
+      command binding in one commit, then ACK; safe-duplicate per IMP-EXEC-003
+      (owner+revision+generation+live lease), else recovery_required.
+- S2: lease/fencing/heartbeat (fenced writes re-validate owner+revision under
+      lock); recovery scanner republishes the SAME generation; migration
+      a690573bf986 adds recovery-window + distinct retry budgets
+      (IMP-EXEC-005/006/007), verified against non-empty tables.
+- S3: 128-bit startup nonce + child UUID + monotonic sequence IPC validation
+      (IMP-EXEC-008/009); replays rejected.
+- S4: mock GPU worker (multiprocessing spawn, DB-free) + two-phase handshake:
+      startup_ready -> durable execution_started tx (IMP-EXEC-011, 8 steps) ->
+      begin_execution; persist failure => no begin, child self-exits
+      (IMP-EXEC-012/013).
+- S5: stage watchdog (progress_and_deadline / deadline_only) + forced-cancel
+      ladder stop->terminate->kill; result commit refused after cancel.
+
+103 tests pass (FR-EXEC-003/006/007/008/009/010/012/013 + full mock flow).
+Architecture deviation: none.
+
+Co-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>

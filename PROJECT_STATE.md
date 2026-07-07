@@ -4,12 +4,12 @@
 **Last updated:** 2026-07-01  
 **Repository:** Sir7s/MedicalCLAP  
 **Architecture version:** 2.4.5 (`final_freeze_candidate`) · **Master Plan:** v1.0  
-**Current phase:** P3 — Command and Event Outbox  
-**Active branch:** `phase/P3-outbox`  
-**Current subphase:** S6 complete — P3 in review  
-**Phase status:** In review — outbox/dispatcher/consumer delivered (82 tests green); awaiting user approval + PR merge  
-**Completed & merged:** P0 ([PR #1](https://github.com/Sir7s/MedicalCLAP/pull/1), `83f1adc`) · P1 ([PR #2](https://github.com/Sir7s/MedicalCLAP/pull/2), `14bcafe`) · P2 ([PR #3](https://github.com/Sir7s/MedicalCLAP/pull/3), `84dcef9`)  
-**Next entry gate:** P4 — P3 approved & merged → Supervisor, Lease, Fencing & Mock Worker
+**Current phase:** P4 — Supervisor, Lease, Fencing and Mock Worker  
+**Active branch:** `phase/P4-supervisor`  
+**Current subphase:** S6 complete — P4 in review  
+**Phase status:** In review — supervisor/lease/fencing/mock-worker delivered (103 tests green); merge pre-authorized by user (2026-07-07) conditional on green CI  
+**Completed & merged:** P0 ([PR #1](https://github.com/Sir7s/MedicalCLAP/pull/1), `83f1adc`) · P1 ([PR #2](https://github.com/Sir7s/MedicalCLAP/pull/2), `14bcafe`) · P2 ([PR #3](https://github.com/Sir7s/MedicalCLAP/pull/3), `84dcef9`) · P3 ([PR #4](https://github.com/Sir7s/MedicalCLAP/pull/4), `aeac92a`)  
+**Next entry gate:** P5 — P4 approved & merged → Artifact, Workspace & Lightweight History
 
 ---
 
