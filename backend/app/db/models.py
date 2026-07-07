@@ -132,6 +132,11 @@ class ModelJob(Base):
     worker_instance_id: Mapped[str | None] = mapped_column(String(128))
     supervisor_heartbeat_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     execution_lease_expires_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    # P4 — worker binding (IMP-EXEC-011 step 6) + execution retry budget (IMP-EXEC-007).
+    execution_attempts: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+    worker_pid: Mapped[int | None] = mapped_column(Integer)
+    child_process_uuid: Mapped[str | None] = mapped_column(String(64))
+    startup_nonce_hash: Mapped[str | None] = mapped_column(String(64))
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), nullable=False, server_default=func.now()
     )
@@ -165,6 +170,13 @@ class CommandOutbox(Base):
     acquired_lease_revision: Mapped[int | None] = mapped_column(Integer)
     lease_owner_instance_id: Mapped[str | None] = mapped_column(String(128))
     dispatch_attempts: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+    # P4 — distinct retry budgets (IMP-EXEC-007) + recovery window (IMP-EXEC-005/006).
+    delivery_attempts: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+    lease_recovery_attempts: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+    recovery_window_started_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    last_recovery_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    consecutive_recovery_failures: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+    total_recovery_attempts: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
     payload: Mapped[dict | None] = mapped_column(JSONB)
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), nullable=False, server_default=func.now()
