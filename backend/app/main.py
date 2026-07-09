@@ -6,6 +6,7 @@ Persistent control-plane logic (tasks, outbox, migrations) arrives in P2+.
 """
 from __future__ import annotations
 
+import os
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI, Response
@@ -28,14 +29,23 @@ log = get_logger("medclip.backend")
 @asynccontextmanager
 async def lifespan(_app: FastAPI):
     log.info("backend starting version=%s", __version__)
+    if os.environ.get("MEDCLIP_RUN_CONTROLPLANE", "0") == "1":
+        from .controlplane.runner import start_background_runner
+
+        start_background_runner()
+        log.info("control-plane runner started")
     yield
 
 
 app = FastAPI(title="3D Medical CLIP API", version=__version__, lifespan=lifespan)
 
+from .controlplane.api import router as controlplane_router  # noqa: E402
+from .controlplane.ws import router as ws_router  # noqa: E402
 from .history.api import router as history_router  # noqa: E402
 
 app.include_router(history_router)
+app.include_router(controlplane_router)
+app.include_router(ws_router)
 
 app.add_middleware(
     CORSMiddleware,

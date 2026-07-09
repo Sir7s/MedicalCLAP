@@ -126,10 +126,14 @@ def persist_execution_started(
         if attempt is None:
             raise HandshakeError(f"attempt {cmd.attempt_id} not found")
 
-        # Steps 3-5 — command/attempt/job state advances.
+        # Steps 3-5 — command/attempt/job state advances (and the parent task
+        # enters running: SPEC-02 task machine is driven by the control plane).
         repo.transition(session, cmd, "command", "execution_started", actor=supervisor_id)
         repo.transition(session, attempt, "attempt", "running", actor=supervisor_id)
         repo.transition(session, job, "model_job", "loading_model", actor=supervisor_id)
+        parent_task = session.get(ApplicationTask, attempt.task_id, with_for_update=True)
+        if parent_task is not None and parent_task.state == "queued":
+            repo.transition(session, parent_task, "task", "running", actor=supervisor_id)
 
         # Step 6 — bind the concrete child (nonce stored only as a hash).
         job.worker_pid = pid
@@ -256,5 +260,19 @@ def commit_result(
             repo.transition(s, cmd, "command", "resolved", actor=supervisor_id)
             cmd.resolution_type = "succeeded"
             cmd.payload = {**(cmd.payload or {}), "result": result}
+
+            # Close the SPEC-02 task machine + emit the completion event.
+            task = s.get(ApplicationTask, attempt.task_id, with_for_update=True)
+            if task is not None and task.state == "running":
+                repo.transition(s, task, "task", "completed", actor=supervisor_id)
+                ws = repo.lock_workspace(s, task.workspace_id)
+                if ws.active_task_count > 0:
+                    ws.active_task_count -= 1
+                seq = repo.next_event_sequence(s, task.workspace_id)
+                s.add(OutboxEvent(
+                    workspace_id=task.workspace_id, aggregate_type="task",
+                    aggregate_id=str(task.id), event_type="task_completed",
+                    event_sequence=seq, payload={"job_id": str(job.id)},
+                ))
 
         fenced(session, job_id, supervisor_id, lease_revision, _commit)
