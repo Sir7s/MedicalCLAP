@@ -4,12 +4,12 @@
 **Last updated:** 2026-07-01  
 **Repository:** Sir7s/MedicalCLAP  
 **Architecture version:** 2.4.5 (`final_freeze_candidate`) · **Master Plan:** v1.0  
-**Current phase:** P5 — Artifact, Workspace and Lightweight History  
-**Active branch:** `phase/P5-artifacts`  
-**Current subphase:** S6 complete — P5 in review  
-**Phase status:** In review — artifact/history layer delivered (115 tests green); merge pre-authorized  
-**Completed & merged:** P0 (#1, `83f1adc`) · P1 (#2, `14bcafe`) · P2 (#3, `84dcef9`) · P3 (#4, `aeac92a`) · P4 (#5, `5d5b188`, merge pre-authorized 2026-07-07)  
-**Next entry gate:** P6 — P5 approved & merged → Minimum Control Plane Validation
+**Current phase:** P6 — Minimum Control Plane Validation  
+**Active branch:** `phase/P6-validation`  
+**Current subphase:** S6 complete — P6 in review  
+**Phase status:** In review — control-plane baseline validated (121 tests green); awaiting user approval + merge  
+**Completed & merged:** P0 (#1) · P1 (#2) · P2 (#3) · P3 (#4) · P4 (#5) · P5 (#6, `0ce0b9a`)  
+**Next entry gate:** P7 — P6 approved & merged → CT-RATE Acquisition & Governance
 
 ---
 

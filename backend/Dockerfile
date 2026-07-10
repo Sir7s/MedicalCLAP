@@ -11,6 +11,8 @@ COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
 COPY app ./app
+COPY alembic ./alembic
+COPY alembic.ini .
 
 # Run as an unprivileged user.
 RUN useradd --create-home --uid 10001 appuser && chown -R appuser /app
@@ -21,4 +23,5 @@ EXPOSE 8000
 HEALTHCHECK --interval=10s --timeout=5s --retries=10 --start-period=15s \
   CMD python -c "import urllib.request,sys; sys.exit(0 if urllib.request.urlopen('http://127.0.0.1:8000/health').status==200 else 1)"
 
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+# Apply migrations (idempotent) before serving.
+CMD ["sh", "-c", "alembic upgrade head && uvicorn app.main:app --host 0.0.0.0 --port 8000"]

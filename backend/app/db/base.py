@@ -6,6 +6,8 @@ agree on the target database.
 """
 from __future__ import annotations
 
+from functools import lru_cache
+
 from sqlalchemy import create_engine
 from sqlalchemy.engine import Engine
 from sqlalchemy.orm import DeclarativeBase, sessionmaker
@@ -24,9 +26,15 @@ def build_dsn(s: Settings) -> str:
     )
 
 
+@lru_cache(maxsize=4)
+def _engine_for_dsn(dsn: str) -> Engine:
+    return create_engine(dsn, pool_pre_ping=True, pool_size=5, max_overflow=10, future=True)
+
+
 def get_engine(s: Settings | None = None) -> Engine:
+    """Process-wide engine per DSN — one pool, not one per caller."""
     s = s or get_settings()
-    return create_engine(build_dsn(s), pool_pre_ping=True, future=True)
+    return _engine_for_dsn(build_dsn(s))
 
 
 def get_sessionmaker(s: Settings | None = None) -> sessionmaker:
