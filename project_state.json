@@ -6,8 +6,8 @@
   "last_updated": "2026-07-07",
   "architecture_version": "2.4.5",
   "master_plan_version": "1.0",
-  "current_phase": "P6",
-  "current_phase_name": "Minimum Control Plane Validation",
+  "current_phase": "P7",
+  "current_phase_name": "CT-RATE Acquisition and Governance",
   "current_subphase": null,
   "phase_status": "in_review",
   "completed_phases": [
@@ -16,7 +16,8 @@
     "P2",
     "P3",
     "P4",
-    "P5"
+    "P5",
+    "P6"
   ],
   "approved_phases": [
     "P0",
@@ -24,9 +25,10 @@
     "P2",
     "P3",
     "P4",
-    "P5"
+    "P5",
+    "P6"
   ],
-  "last_approved_exit_report": "docs/reports/P5_EXIT_REPORT.md",
+  "last_approved_exit_report": "docs/reports/P6_EXIT_REPORT.md",
   "phase_history": [
     {
       "phase": "P0",
@@ -77,11 +79,19 @@
       "merged_at": "2026-07-07",
       "result": "approved_and_merged",
       "approval_note": "Merge pre-authorized by user 2026-07-07 conditional on green CI; CI green."
+    },
+    {
+      "phase": "P6",
+      "name": "Minimum Control Plane Validation",
+      "pull_request": "https://github.com/Sir7s/MedicalCLAP/pull/7",
+      "merge_commit": "a3f91eb",
+      "merged_at": "2026-07-07",
+      "result": "approved_and_merged"
     }
   ],
-  "next_entry_gate": "P7 entry: P6 Exit Report approved and P6 PR merged -> CT-RATE Acquisition & Governance.",
-  "active_branch": "phase/P6-validation",
-  "open_pull_request": "https://github.com/Sir7s/MedicalCLAP/pull/7",
+  "next_entry_gate": "P8 entry: P7 Exit Report approved and P7 PR merged.",
+  "active_branch": "phase/P7-ctrate",
+  "open_pull_request": "https://github.com/Sir7s/MedicalCLAP/pull/8",
   "critical_tests": {
     "P0": {
       "test_doc_integrity": "passing",
@@ -138,6 +148,14 @@
       "websocket_replay": "passing",
       "history_save_reopen": "passing",
       "api_idempotency": "passing"
+    },
+    "P7": {
+      "canonical_hash_stability": "passing",
+      "patient_level_no_leakage": "passing",
+      "split_determinism": "passing",
+      "volume_report_coverage": "passing",
+      "manifest_matches_disk": "passing",
+      "provenance_forbids_redistribution": "passing"
     }
   },
   "architecture": {
@@ -342,5 +360,22 @@
       "project_state.json"
     ],
     "conflict_policy": "Stop execution, run a consistency audit, report the mismatch and wait for the user's decision."
+  },
+  "data_access": {
+    "ct_rate": {
+      "hf_access": "confirmed (user Sir7s, gated=auto granted 2026-07-07)",
+      "token_location": "infra/.env HF_TOKEN (git-ignored)",
+      "total_size_tb": 21.3,
+      "total_volumes": 250931,
+      "resource_status": "resolved (Option B, ~130GB)",
+      "root_sha256": "b577dd1354e1baf84f4a02c66e1c8a9da552bc39bad2e19bceb49367528e3208",
+      "volumes": 801,
+      "size_gb": 130.9,
+      "split": {
+        "train": 556,
+        "val": 127,
+        "test": 118
+      }
+    }
   }
 }
