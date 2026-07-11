@@ -91,7 +91,7 @@
   ],
   "next_entry_gate": "P8 entry: P7 Exit Report approved and P7 PR merged.",
   "active_branch": "phase/P7-ctrate",
-  "open_pull_request": null,
+  "open_pull_request": "https://github.com/Sir7s/MedicalCLAP/pull/8",
   "critical_tests": {
     "P0": {
       "test_doc_integrity": "passing",
