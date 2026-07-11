@@ -6,8 +6,8 @@
   "last_updated": "2026-07-07",
   "architecture_version": "2.4.5",
   "master_plan_version": "1.0",
-  "current_phase": "P7",
-  "current_phase_name": "CT-RATE Acquisition and Governance",
+  "current_phase": "P8",
+  "current_phase_name": "NIfTI Ingestion and 3D CT Viewer",
   "current_subphase": null,
   "phase_status": "in_review",
   "completed_phases": [
@@ -17,7 +17,8 @@
     "P3",
     "P4",
     "P5",
-    "P6"
+    "P6",
+    "P7"
   ],
   "approved_phases": [
     "P0",
@@ -26,9 +27,10 @@
     "P3",
     "P4",
     "P5",
-    "P6"
+    "P6",
+    "P7"
   ],
-  "last_approved_exit_report": "docs/reports/P6_EXIT_REPORT.md",
+  "last_approved_exit_report": "docs/reports/P7_EXIT_REPORT.md",
   "phase_history": [
     {
       "phase": "P0",
@@ -87,11 +89,19 @@
       "merge_commit": "a3f91eb",
       "merged_at": "2026-07-07",
       "result": "approved_and_merged"
+    },
+    {
+      "phase": "P7",
+      "name": "CT-RATE Acquisition and Governance",
+      "pull_request": "https://github.com/Sir7s/MedicalCLAP/pull/8",
+      "merge_commit": "45b6881",
+      "merged_at": "2026-07-07",
+      "result": "approved_and_merged"
     }
   ],
-  "next_entry_gate": "P8 entry: P7 Exit Report approved and P7 PR merged.",
-  "active_branch": "phase/P7-ctrate",
-  "open_pull_request": "https://github.com/Sir7s/MedicalCLAP/pull/8",
+  "next_entry_gate": "P9 entry: P8 approved and merged -> CT Preprocessing & Point Sampling.",
+  "active_branch": "phase/P8-viewer",
+  "open_pull_request": null,
   "critical_tests": {
     "P0": {
       "test_doc_integrity": "passing",
@@ -156,6 +166,14 @@
       "volume_report_coverage": "passing",
       "manifest_matches_disk": "passing",
       "provenance_forbids_redistribution": "passing"
+    },
+    "P8": {
+      "nifti_validation": "passing",
+      "upload_ingest_real_ct": "passing",
+      "orthogonal_slices": "passing",
+      "annotation_persistence": "passing",
+      "volume_rendering_mip": "passing",
+      "migration_up_down": "passing"
     }
   },
   "architecture": {
@@ -377,5 +395,6 @@
         "test": 118
       }
     }
-  }
+  },
+  "merge_authorization": "auto-merge on green CI resumed from P8 (user 2026-07-07); still pause for resource/architecture/destructive decisions"
 }

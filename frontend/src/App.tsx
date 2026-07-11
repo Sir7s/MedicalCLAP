@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import Dashboard from "./Dashboard";
+import Viewer from "./Viewer";
 
 const BACKEND_URL =
   (import.meta.env.VITE_BACKEND_URL as string | undefined) ?? "http://127.0.0.1:8000";
@@ -32,6 +33,8 @@ export default function App() {
         {error && <p style={{ color: "crimson" }}>● backend unreachable: {error}</p>}
         {!health && !error && <p>Checking…</p>}
       </section>
+
+      <Viewer />
 
       <Dashboard />
 

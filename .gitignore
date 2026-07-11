@@ -30,6 +30,7 @@ checkpoints/
 *.safetensors
 qdrant_storage/
 pgdata/
+workspace_data/
 
 # ---- Python ----
 __pycache__/
