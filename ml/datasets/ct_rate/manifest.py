@@ -66,7 +66,7 @@ def build_manifest() -> dict:
     manifest = {
         "dataset": "CT-RATE",
         "source_variant": "train_fixed",
-        "hash_form": "NFC_path + NUL + decimal_size + NUL + lower_sha256 + LF, sorted by utf8(path)",
+        "hash_form": "NFC(path) + NUL + size + NUL + lower_sha256 + LF; sorted by utf8(path)",
         "file_count": len(entries),
         "total_bytes": sum(e.size for e in entries),
         "root_sha256": root_hash(entries),
