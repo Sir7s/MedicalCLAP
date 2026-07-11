@@ -1,0 +1,4 @@
+# ML tooling dependencies (P7+). Kept separate from the backend runtime.
+numpy==2.2.6
+nibabel==5.4.2
+scipy==1.17.1

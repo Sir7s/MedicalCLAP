@@ -6,8 +6,8 @@
   "last_updated": "2026-07-07",
   "architecture_version": "2.4.5",
   "master_plan_version": "1.0",
-  "current_phase": "P8",
-  "current_phase_name": "NIfTI Ingestion and 3D CT Viewer",
+  "current_phase": "P9",
+  "current_phase_name": "CT Preprocessing and Point Sampling",
   "current_subphase": null,
   "phase_status": "in_review",
   "completed_phases": [
@@ -18,7 +18,8 @@
     "P4",
     "P5",
     "P6",
-    "P7"
+    "P7",
+    "P8"
   ],
   "approved_phases": [
     "P0",
@@ -28,9 +29,10 @@
     "P4",
     "P5",
     "P6",
-    "P7"
+    "P7",
+    "P8"
   ],
-  "last_approved_exit_report": "docs/reports/P7_EXIT_REPORT.md",
+  "last_approved_exit_report": "docs/reports/P8_EXIT_REPORT.md",
   "phase_history": [
     {
       "phase": "P0",
@@ -97,11 +99,19 @@
       "merge_commit": "45b6881",
       "merged_at": "2026-07-07",
       "result": "approved_and_merged"
+    },
+    {
+      "phase": "P8",
+      "name": "NIfTI Ingestion and 3D CT Viewer",
+      "pull_request": "https://github.com/Sir7s/MedicalCLAP/pull/9",
+      "merge_commit": "bc4ff27",
+      "merged_at": "2026-07-07",
+      "result": "approved_and_merged"
     }
   ],
-  "next_entry_gate": "P9 entry: P8 approved and merged -> CT Preprocessing & Point Sampling.",
-  "active_branch": "phase/P8-viewer",
-  "open_pull_request": "https://github.com/Sir7s/MedicalCLAP/pull/9",
+  "next_entry_gate": "P10 entry: P9 approved and merged -> Text Pipeline & Bilingual Input.",
+  "active_branch": "phase/P9-preprocessing",
+  "open_pull_request": "https://github.com/Sir7s/MedicalCLAP/pull/10",
   "critical_tests": {
     "P0": {
       "test_doc_integrity": "passing",
@@ -174,6 +184,14 @@
       "annotation_persistence": "passing",
       "volume_rendering_mip": "passing",
       "migration_up_down": "passing"
+    },
+    "P9": {
+      "determinism": "passing",
+      "exact_count_finite": "passing",
+      "coordinate_density_range": "passing",
+      "sampling_ratios": "passing",
+      "resample_spacing": "passing",
+      "manifest_complete": "passing"
     }
   },
   "architecture": {

@@ -4,12 +4,12 @@
 **Last updated:** 2026-07-01  
 **Repository:** Sir7s/MedicalCLAP  
 **Architecture version:** 2.4.5 (`final_freeze_candidate`) · **Master Plan:** v1.0  
-**Current phase:** P8 — NIfTI Ingestion and 3D CT Viewer  
-**Active branch:** `phase/P8-viewer`  
-**Current subphase:** S6 complete — P8 in review  
-**Phase status:** In review — NIfTI viewer delivered (real-CT verified); auto-merge on green CI
-**Completed & merged:** P0–P7 (P7 #8 `45b6881`)  
-**Next entry gate:** P9 — P8 approved & merged → CT Preprocessing & Point Sampling
+**Current phase:** P9 — CT Preprocessing and Point Sampling
+**Active branch:** `phase/P9-preprocessing`  
+**Current subphase:** S6 complete — P9 in review  
+**Phase status:** In review — deterministic CT->32768 points (real-CT verified); auto-merge on green CI
+**Completed & merged:** P0–P8 (P8 #9 `bc4ff27`)
+**Next entry gate:** P10 — P9 approved & merged → Text Pipeline & Bilingual Input
 
 ---
 
