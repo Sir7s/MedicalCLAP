@@ -30,7 +30,8 @@ run "spec manifest integrity"     "$PYTHON" scripts/spec_manifest.py --check
 run "unit tests + coverage"       "$PYTHON" -m pytest --cov --cov-report=term-missing
 run "backend unit tests"          bash -c "cd '$(pwd)/backend' && '$PYTHON' -m pytest -q"
 run "SAST (bandit)"               "$PYTHON" -m bandit -r scripts backend/app -ll
-run "dependency audit (pip-audit)" "$PYTHON" -m pip_audit -r requirements-dev.txt
+run "dependency audit (dev)"       "$PYTHON" -m pip_audit -r requirements-dev.txt
+run "dependency audit (backend)"   "$PYTHON" -m pip_audit -r backend/requirements.txt
 
 echo ""
 if [ "$fail" -eq 0 ]; then
