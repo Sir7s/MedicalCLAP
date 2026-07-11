@@ -24,7 +24,7 @@ run() {
 }
 
 run "lint (ruff)"                 "$PYTHON" -m ruff check . backend
-run "type check (mypy, root)"     "$PYTHON" -m mypy scripts tests
+run "type check (mypy, root)"     "$PYTHON" -m mypy scripts tests ml
 run "type check (mypy, backend)"  bash -c "cd '$(pwd)/backend' && '$PYTHON' -m mypy app"
 run "spec manifest integrity"     "$PYTHON" scripts/spec_manifest.py --check
 run "unit tests + coverage"       "$PYTHON" -m pytest --cov --cov-report=term-missing

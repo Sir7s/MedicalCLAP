@@ -13,8 +13,10 @@ credentials/
 
 # ---- Medical data & model artifacts (NEVER commit — Hard Constraint H-13) ----
 # Restricted datasets (CT-RATE, ReXGroundingCT, BIMCV-R) and any PHI-bearing files.
-data/
-datasets/
+# Anchored to the repo root so they match the top-level dataset dirs only, not
+# source dirs like ml/datasets/ or tests/data/.
+/data/
+/datasets/
 *.nii
 *.nii.gz
 *.dcm

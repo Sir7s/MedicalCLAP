@@ -34,7 +34,7 @@ jobs:
       - name: Lint (ruff)
         run: ruff check . backend
       - name: Type check (mypy)
-        run: mypy scripts tests
+        run: mypy scripts tests ml
       - name: Spec manifest integrity
         run: python scripts/spec_manifest.py --check
       - name: Unit tests (governance) + coverage

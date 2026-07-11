@@ -4,12 +4,12 @@
 **Last updated:** 2026-07-01  
 **Repository:** Sir7s/MedicalCLAP  
 **Architecture version:** 2.4.5 (`final_freeze_candidate`) · **Master Plan:** v1.0  
-**Current phase:** P6 — Minimum Control Plane Validation  
-**Active branch:** `phase/P6-validation`  
-**Current subphase:** S6 complete — P6 in review  
-**Phase status:** In review — control-plane baseline validated (121 tests green); awaiting user approval + merge  
-**Completed & merged:** P0 (#1) · P1 (#2) · P2 (#3) · P3 (#4) · P4 (#5) · P5 (#6, `0ce0b9a`)  
-**Next entry gate:** P7 — P6 approved & merged → CT-RATE Acquisition & Governance
+**Current phase:** P7 — CT-RATE Acquisition and Governance  
+**Active branch:** `phase/P7-ctrate`  
+**Current subphase:** complete — P7 in review  
+**Phase status:** In review — 801-vol/130.9GB governed CT-RATE release (8 tests green); awaiting user approval + merge  
+**Completed & merged:** P0–P6 (P6 #7 `a3f91eb`)  
+**Next entry gate:** P8 — P7 approved & merged → NIfTI Ingestion & 3D CT Viewer
 
 ---
 
