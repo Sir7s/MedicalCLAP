@@ -431,3 +431,52 @@ class StorageReservation(Base):
         DateTime(timezone=True), nullable=False, server_default=func.now()
     )
     released_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+
+
+# --- P8: CT viewer (NIfTI volumes + polygon annotations) ---------------------
+
+
+class CtVolume(Base):
+    __tablename__ = "ct_volumes"
+
+    id: Mapped[uuid.UUID] = _uuid_pk()
+    workspace_id: Mapped[uuid.UUID] = mapped_column(
+        ForeignKey("workspace_sessions.id", ondelete="RESTRICT"), nullable=False, index=True
+    )
+    filename: Mapped[str] = mapped_column(String(256), nullable=False)
+    stored_path: Mapped[str] = mapped_column(Text, nullable=False)
+    size_bytes: Mapped[int] = mapped_column(BigInteger, nullable=False)
+    shape: Mapped[dict] = mapped_column(JSONB, nullable=False)      # [x, y, z]
+    spacing: Mapped[dict] = mapped_column(JSONB, nullable=False)    # [sx, sy, sz]
+    affine: Mapped[dict] = mapped_column(JSONB, nullable=False)     # 4x4
+    orientation: Mapped[str] = mapped_column(String(8), nullable=False)
+    dtype: Mapped[str] = mapped_column(String(32), nullable=False)
+    scalar_min: Mapped[float] = mapped_column(nullable=False)
+    scalar_max: Mapped[float] = mapped_column(nullable=False)
+    window_center: Mapped[float] = mapped_column(nullable=False)
+    window_width: Mapped[float] = mapped_column(nullable=False)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), nullable=False, server_default=func.now()
+    )
+
+
+class CtAnnotation(Base):
+    __tablename__ = "ct_annotations"
+    __table_args__ = (
+        _in_check("plane", ("axial", "coronal", "sagittal"), "ck_annotation_plane"),
+    )
+
+    id: Mapped[uuid.UUID] = _uuid_pk()
+    ct_volume_id: Mapped[uuid.UUID] = mapped_column(
+        ForeignKey("ct_volumes.id", ondelete="RESTRICT"), nullable=False, index=True
+    )
+    workspace_id: Mapped[uuid.UUID] = mapped_column(
+        ForeignKey("workspace_sessions.id", ondelete="RESTRICT"), nullable=False, index=True
+    )
+    plane: Mapped[str] = mapped_column(String(16), nullable=False)
+    slice_index: Mapped[int] = mapped_column(Integer, nullable=False)
+    points: Mapped[list] = mapped_column(JSONB, nullable=False)     # [[x,y], ...]
+    label: Mapped[str | None] = mapped_column(String(128))
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), nullable=False, server_default=func.now()
+    )
