@@ -32,6 +32,7 @@ run "backend unit tests"          bash -c "cd '$(pwd)/backend' && '$PYTHON' -m p
 run "SAST (bandit)"               "$PYTHON" -m bandit -r scripts backend/app -ll
 run "dependency audit (dev)"       "$PYTHON" -m pip_audit -r requirements-dev.txt
 run "dependency audit (backend)"   "$PYTHON" -m pip_audit -r backend/requirements.txt
+run "dependency audit (ml)"        "$PYTHON" -m pip_audit -r ml/requirements.txt
 
 echo ""
 if [ "$fail" -eq 0 ]; then
