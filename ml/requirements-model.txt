@@ -1,0 +1,4 @@
+# P11 model dependencies (local; heavy — NOT installed in the CI ml lane).
+# Install CPU torch: pip install torch --index-url https://download.pytorch.org/whl/cpu
+torch==2.13.0
+transformers==5.13.1

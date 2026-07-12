@@ -6,8 +6,8 @@
   "last_updated": "2026-07-12",
   "architecture_version": "2.4.5",
   "master_plan_version": "1.0",
-  "current_phase": "P10",
-  "current_phase_name": "Text Pipeline and Bilingual Input",
+  "current_phase": "P11",
+  "current_phase_name": "Retrieval Model Baseline",
   "current_subphase": null,
   "phase_status": "in_review",
   "completed_phases": [
@@ -20,7 +20,8 @@
     "P6",
     "P7",
     "P8",
-    "P9"
+    "P9",
+    "P10"
   ],
   "approved_phases": [
     "P0",
@@ -32,9 +33,10 @@
     "P6",
     "P7",
     "P8",
-    "P9"
+    "P9",
+    "P10"
   ],
-  "last_approved_exit_report": "docs/reports/P9_EXIT_REPORT.md",
+  "last_approved_exit_report": "docs/reports/P10_EXIT_REPORT.md",
   "phase_history": [
     {
       "phase": "P0",
@@ -117,11 +119,19 @@
       "merge_commit": "eea310f",
       "merged_at": "2026-07-07",
       "result": "approved_and_merged"
+    },
+    {
+      "phase": "P10",
+      "name": "Text Pipeline and Bilingual Input",
+      "pull_request": "https://github.com/Sir7s/MedicalCLAP/pull/11",
+      "merge_commit": "223cb33",
+      "merged_at": "2026-07-12",
+      "result": "approved_and_merged"
     }
   ],
-  "next_entry_gate": "P11 entry: P10 approved and merged -> Retrieval Model Baseline.",
-  "active_branch": "phase/P10-text",
-  "open_pull_request": "https://github.com/Sir7s/MedicalCLAP/pull/11",
+  "next_entry_gate": "P12 entry: P11 approved and merged -> Retrieval Training & Model Selection.",
+  "active_branch": "phase/P11-retrieval-model",
+  "open_pull_request": "https://github.com/Sir7s/MedicalCLAP/pull/12",
   "critical_tests": {
     "P0": {
       "test_doc_integrity": "passing",
@@ -210,6 +220,14 @@
       "speech_smoke": "passing",
       "tokenizer_padding": "passing",
       "no_log_of_query_text": "passing"
+    },
+    "P11": {
+      "forward_backward": "passing",
+      "overfit_tiny_batch_recall1": "passing",
+      "loss_numerical_stability": "passing",
+      "checkpoint_reload_consistency": "passing",
+      "metrics_above_random": "passing",
+      "real_data_forward": "passing"
     }
   },
   "architecture": {
