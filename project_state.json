@@ -131,7 +131,7 @@
   ],
   "next_entry_gate": "P12 entry: P11 approved and merged -> Retrieval Training & Model Selection.",
   "active_branch": "phase/P11-retrieval-model",
-  "open_pull_request": null,
+  "open_pull_request": "https://github.com/Sir7s/MedicalCLAP/pull/12",
   "critical_tests": {
     "P0": {
       "test_doc_integrity": "passing",
