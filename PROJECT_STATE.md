@@ -4,12 +4,12 @@
 **Last updated:** 2026-07-01  
 **Repository:** Sir7s/MedicalCLAP  
 **Architecture version:** 2.4.5 (`final_freeze_candidate`) · **Master Plan:** v1.0  
-**Current phase:** P9 — CT Preprocessing and Point Sampling
-**Active branch:** `phase/P9-preprocessing`  
-**Current subphase:** S6 complete — P9 in review  
-**Phase status:** In review — deterministic CT->32768 points (real-CT verified); auto-merge on green CI
-**Completed & merged:** P0–P8 (P8 #9 `bc4ff27`)
-**Next entry gate:** P10 — P9 approved & merged → Text Pipeline & Bilingual Input
+**Current phase:** P10 — Text Pipeline and Bilingual Input
+**Active branch:** `phase/P10-text`  
+**Current subphase:** S6 complete — P10 in review  
+**Phase status:** In review — text/translation/speech pipeline (models verified locally); auto-merge on green CI
+**Completed & merged:** P0–P9 (P9 #10 `eea310f`)
+**Next entry gate:** P11 — P10 approved & merged → Retrieval Model Baseline
 
 ---
 
