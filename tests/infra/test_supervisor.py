@@ -160,7 +160,8 @@ def test_lease_commit_before_ack_crash_single_lease():
 def test_fencing_old_revision_cannot_write():
     """FR-EXEC-006: after takeover, the old supervisor's writes are rejected."""
     cid, jid = _new_dispatched_command()
-    assert _consume(SUP_A) == ["leased"]  # revision 1 held by A
+    _consume(SUP_A)  # revision 1 held by A (shared DB may lease others)
+    assert _job(jid).state == "leased" and _job(jid).execution_lease_revision == 1
 
     _expire_lease(jid)
     with SessionLocal() as s:
@@ -196,7 +197,8 @@ def test_recovery_budget_isolation():
     delivery and execution budgets; stable run clears only the consecutive
     counter (IMP-EXEC-006)."""
     cid, jid = _new_dispatched_command()
-    assert _consume(SUP_A) == ["leased"]
+    _consume(SUP_A)
+    assert _job(jid).state == "leased"
     _expire_lease(jid)
     with SessionLocal() as s:
         scanner.recover_expired_leases(s, R)
@@ -219,7 +221,8 @@ def test_startup_ready_gating_and_persist():
     """FR-EXEC-008: spawn does not advance control-plane state; only the
     persisted execution_started transaction does."""
     cid, jid = _new_dispatched_command()
-    assert _consume(SUP_A) == ["leased"]
+    _consume(SUP_A)
+    assert _job(jid).state == "leased"
 
     handle = hs.spawn_worker(jid, 1)
     try:
@@ -263,7 +266,8 @@ def test_persist_failure_means_no_begin_execution():
     """FR-EXEC-013 / IMP-EXEC-012: if the execution_started transaction fails,
     begin_execution is never sent and no state advances."""
     cid, jid = _new_dispatched_command()
-    assert _consume(SUP_A) == ["leased"]
+    _consume(SUP_A)
+    assert _job(jid).state == "leased"
 
     parent_conn, child_conn = mp.Pipe()
     failpoints.arm("FP-EXEC-BEFORE-BEGIN-EXECUTION")
@@ -300,7 +304,8 @@ def test_forced_cancel_no_result_commit():
     """FR-EXEC-010: cooperative stop ignored -> terminate/kill; job ends
     cancelled_forced and a result commit is refused."""
     cid, jid = _new_dispatched_command()
-    assert _consume(SUP_A) == ["leased"]
+    _consume(SUP_A)
+    assert _job(jid).state == "leased"
 
     handle = hs.spawn_worker(jid, 1, behavior="ignore_stop")
     try:

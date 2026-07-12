@@ -1,0 +1,8 @@
+# P10 text-pipeline dependencies (local; heavy — NOT installed in the CI ml lane).
+# Model-dependent tests auto-skip in CI and are verified locally.
+# BioClinicalBERT tokenizer (no torch needed for tokenization):
+transformers==5.13.1
+# Local zh->en translation (pulls ctranslate2; stanza -> torch transitively):
+argostranslate==1.11.0
+# English speech-to-text (CTranslate2, CPU):
+faster-whisper==1.2.1
