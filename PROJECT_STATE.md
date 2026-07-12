@@ -4,12 +4,15 @@
 **Last updated:** 2026-07-01  
 **Repository:** Sir7s/MedicalCLAP  
 **Architecture version:** 2.4.5 (`final_freeze_candidate`) · **Master Plan:** v1.0  
-**Current phase:** P11 — Retrieval Model Baseline
-**Active branch:** `phase/P11-retrieval-model`  
-**Current subphase:** S6 complete — P11 in review  
-**Phase status:** In review — PointNet++ & BioClinicalBERT baseline (tiny overfit Recall@1=1.0, real-data verified); auto-merge on green CI
-**Completed & merged:** P0–P10 (P10 #11 `223cb33`)
-**Next entry gate:** P12 — P11 approved & merged → Retrieval Training & Model Selection
+**Current phase:** P12 — Retrieval Training and Model Selection
+**Active branch:** `phase/P12-training`  
+**Current subphase:** training pipeline delivered; cloud checkpoint pending  
+**Phase status:** In progress — pipeline validated on real GPU (RTX 4050); the
+deployable checkpoint comes from cloud training (`ml/notebooks/train_ctrate_colab.ipynb`).
+Local runs are data-limited (held-out at random); P12 is finalized only after the
+cloud run's real metrics are recorded in `docs/reports/P12_MODEL_CARD.md`.
+**Completed & merged:** P0–P11 (P11 #12 `9dd65f8`)
+**Next entry gate:** P13 — P12 approved & merged → Qdrant Index & Real Retrieval
 
 ---
 

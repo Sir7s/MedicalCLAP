@@ -6,10 +6,10 @@
   "last_updated": "2026-07-12",
   "architecture_version": "2.4.5",
   "master_plan_version": "1.0",
-  "current_phase": "P11",
-  "current_phase_name": "Retrieval Model Baseline",
+  "current_phase": "P12",
+  "current_phase_name": "Retrieval Training and Model Selection",
   "current_subphase": null,
-  "phase_status": "in_review",
+  "phase_status": "in_progress",
   "completed_phases": [
     "P0",
     "P1",
@@ -21,7 +21,8 @@
     "P7",
     "P8",
     "P9",
-    "P10"
+    "P10",
+    "P11"
   ],
   "approved_phases": [
     "P0",
@@ -34,9 +35,10 @@
     "P7",
     "P8",
     "P9",
-    "P10"
+    "P10",
+    "P11"
   ],
-  "last_approved_exit_report": "docs/reports/P10_EXIT_REPORT.md",
+  "last_approved_exit_report": "docs/reports/P11_EXIT_REPORT.md",
   "phase_history": [
     {
       "phase": "P0",
@@ -127,11 +129,20 @@
       "merge_commit": "223cb33",
       "merged_at": "2026-07-12",
       "result": "approved_and_merged"
+    },
+    {
+      "phase": "P11",
+      "name": "Retrieval Model Baseline",
+      "pull_request": "https://github.com/Sir7s/MedicalCLAP/pull/12",
+      "merge_commit": "9dd65f8",
+      "merged_at": "2026-07-12",
+      "result": "approved_and_merged"
     }
   ],
-  "next_entry_gate": "P12 entry: P11 approved and merged -> Retrieval Training & Model Selection.",
-  "active_branch": "phase/P11-retrieval-model",
-  "open_pull_request": "https://github.com/Sir7s/MedicalCLAP/pull/12",
+  "next_entry_gate": "P13 entry: P12 approved and merged -> Qdrant Index & Real Retrieval Integration.",
+  "active_branch": "phase/P12-training",
+  "open_pull_request": null,
+  "p12_status_note": "Training pipeline delivered and validated on real GPU (RTX 4050). Local runs are data-limited (held-out at random). User chose cloud training: ml/notebooks/train_ctrate_colab.ipynb produces the deployable checkpoint. P12 is finalized (and merged) only after the cloud run's real held-out metrics are recorded in docs/reports/P12_MODEL_CARD.md.",
   "critical_tests": {
     "P0": {
       "test_doc_integrity": "passing",
@@ -228,6 +239,13 @@
       "checkpoint_reload_consistency": "passing",
       "metrics_above_random": "passing",
       "real_data_forward": "passing"
+    },
+    "P12": {
+      "train_loop_smoke": "passing",
+      "resumable_checkpoint": "passing",
+      "real_gpu_training": "passing (RTX 4050, torch 2.11.0+cu128)",
+      "held_out_metrics_local": "at_random (data-limited; see P12_MODEL_CARD)",
+      "cloud_checkpoint_and_metrics": "pending (user runs train_ctrate_colab.ipynb)"
     }
   },
   "architecture": {
@@ -456,5 +474,6 @@
     "speech": "faster-whisper base",
     "text_encoder_tokenizer": "emilyalsentzer/Bio_ClinicalBERT",
     "torch_required": false
-  }
+  },
+  "training_decision": "local RTX 4050 (6GB) small-scale training (user 2026-07-12)"
 }

@@ -1,0 +1,25 @@
+P12: retrieval training pipeline + cloud training path
+
+Train the P11 PointNet++/Bio_ClinicalBERT retrieval model on real CT-RATE data
+with model selection by held-out validation. Deliver a reproducible, resumable
+training system and a Colab/Kaggle notebook for full-scale cloud training.
+
+- ml/models/train_config.py: frozen TrainConfig, scalable via CLI
+- ml/models/data.py: point-cloud cache (env-configurable roots), report+label
+  pairing, torch dataset + collate
+- ml/models/train.py: AMP loop, best-val checkpoint selection, held-out test,
+  auto model card, --resume (survives cloud disconnects), CLI scaling knobs,
+  refuses silent CPU fallback
+- ml/notebooks/train_ctrate_colab.ipynb + docs/CLOUD_TRAINING.md
+- tests/ml/test_train.py: full-loop smoke + resume (torch; auto-skip in CI)
+- docs/reports/P12_*: exit report, conformance, model card, PR description
+
+Real GPU validation (RTX 4050, torch 2.11.0+cu128): model learns (train R@5 ~
+0.98, eval path verified) but held-out retrieval is at random across the full
+556-volume local subset (best val epoch 1) — a data-scale limit, not a bug.
+Cloud training is the usable-model path (user decision).
+
+Weights/PHI not committed (H-13/H-14): runs/ git-ignored. P12 finalized once the
+cloud run's real held-out metrics are recorded.
+
+Co-Authored-By: Claude Fable 5 <noreply@anthropic.com>

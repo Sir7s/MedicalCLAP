@@ -28,6 +28,7 @@ checkpoints/
 *.pth
 *.onnx
 *.safetensors
+runs/
 qdrant_storage/
 pgdata/
 workspace_data/
