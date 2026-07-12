@@ -4,12 +4,12 @@
 **Last updated:** 2026-07-01  
 **Repository:** Sir7s/MedicalCLAP  
 **Architecture version:** 2.4.5 (`final_freeze_candidate`) · **Master Plan:** v1.0  
-**Current phase:** P10 — Text Pipeline and Bilingual Input
-**Active branch:** `phase/P10-text`  
-**Current subphase:** S6 complete — P10 in review  
-**Phase status:** In review — text/translation/speech pipeline (models verified locally); auto-merge on green CI
-**Completed & merged:** P0–P9 (P9 #10 `eea310f`)
-**Next entry gate:** P11 — P10 approved & merged → Retrieval Model Baseline
+**Current phase:** P11 — Retrieval Model Baseline
+**Active branch:** `phase/P11-retrieval-model`  
+**Current subphase:** S6 complete — P11 in review  
+**Phase status:** In review — PointNet++ & BioClinicalBERT baseline (tiny overfit Recall@1=1.0, real-data verified); auto-merge on green CI
+**Completed & merged:** P0–P10 (P10 #11 `223cb33`)
+**Next entry gate:** P12 — P11 approved & merged → Retrieval Training & Model Selection
 
 ---
 

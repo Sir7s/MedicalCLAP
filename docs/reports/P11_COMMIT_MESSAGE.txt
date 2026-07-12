@@ -1,0 +1,22 @@
+P11: retrieval model baseline
+
+PointNet++ CT encoder + BioClinicalBERT text encoder to 512-d L2-normalized
+embeddings; bidirectional CLIP contrastive loss + CT-RATE multi-label aux loss;
+Recall@K/mAP/nDCG metrics; tiny-batch overfit sanity gate (SPEC-07 8.2-8.4).
+
+- pointnet2.py: FPS + kNN set-abstraction encoder, 32768 pts to 512-d.
+- text_encoder.py: BioClinicalBERT + projection (tiny random BERT for tests).
+- losses.py: symmetric InfoNCE (CT<->report) + multi-label BCE.
+- metrics.py: bidirectional Recall@K / mAP / nDCG.
+- retrieval.py: combined model + fit_overfit + batch helpers.
+
+Exit gate: fixed 4-sample batch overfits in 200 steps (contrastive loss under
+20% of start; bidirectional Recall@1 = 1.0 vs 0.25 random; all losses finite).
+Verified on real data: real 32768-pt CT-RATE volume to PointNet++ 512-d and real
+report to BioClinicalBERT 512-d, full forward. Checkpoint reload consistent.
+
+5 tests (2 numpy metrics in CI + 3 torch model tests verified locally, skip in
+CI). No CT-CLIP weights loaded into PointNet++. Architecture deviation: none.
+Full cloud training/checkpoint = P12.
+
+Co-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>
