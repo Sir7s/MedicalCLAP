@@ -121,7 +121,7 @@
   ],
   "next_entry_gate": "P11 entry: P10 approved and merged -> Retrieval Model Baseline.",
   "active_branch": "phase/P10-text",
-  "open_pull_request": null,
+  "open_pull_request": "https://github.com/Sir7s/MedicalCLAP/pull/11",
   "critical_tests": {
     "P0": {
       "test_doc_integrity": "passing",
