@@ -141,7 +141,7 @@
   ],
   "next_entry_gate": "P13 entry: P12 approved and merged -> Qdrant Index & Real Retrieval Integration.",
   "active_branch": "phase/P12-training",
-  "open_pull_request": null,
+  "open_pull_request": "https://github.com/Sir7s/MedicalCLAP/pull/13",
   "p12_status_note": "Training pipeline delivered and validated on real GPU (RTX 4050). Local runs are data-limited (held-out at random). User chose cloud training: ml/notebooks/train_ctrate_colab.ipynb produces the deployable checkpoint. P12 is finalized (and merged) only after the cloud run's real held-out metrics are recorded in docs/reports/P12_MODEL_CARD.md.",
   "critical_tests": {
     "P0": {
