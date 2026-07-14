@@ -247,8 +247,10 @@
       "train_loop_smoke": "passing",
       "resumable_checkpoint": "passing",
       "real_gpu_training": "passing (RTX 4050, torch 2.11.0+cu128)",
-      "held_out_metrics_local": "at_random (data-limited; see P12_MODEL_CARD)",
-      "cloud_checkpoint_and_metrics": "pending (user runs train_ctrate_colab.ipynb)"
+      "held_out_from_scratch": "at/below random (R@10 0.051; see P12_MODEL_CARD)",
+      "p12a_pretrain_smoke": "passing",
+      "held_out_p12a_pretrained": "above random (CT->text R@10 0.127 vs 0.051 scratch; modest, best local model)",
+      "cloud_checkpoint_and_metrics": "available lever (train_ctrate_colab.ipynb); not yet run"
     }
   },
   "architecture": {
