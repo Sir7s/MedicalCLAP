@@ -8,8 +8,11 @@
   "master_plan_version": "1.0",
   "current_phase": "P12",
   "current_phase_name": "Retrieval Training and Model Selection",
-  "current_subphase": null,
+  "current_subphase": "P12a",
   "phase_status": "in_progress",
+  "approved_architecture_addenda": [
+    "docs/architecture/AUP-001_ct_encoder_pretraining.md"
+  ],
   "completed_phases": [
     "P0",
     "P1",
@@ -142,7 +145,7 @@
   "next_entry_gate": "P13 entry: P12 approved and merged -> Qdrant Index & Real Retrieval Integration.",
   "active_branch": "phase/P12-training",
   "open_pull_request": "https://github.com/Sir7s/MedicalCLAP/pull/13",
-  "p12_status_note": "Training pipeline delivered and validated on real GPU (RTX 4050). Local runs are data-limited (held-out at random). User chose cloud training: ml/notebooks/train_ctrate_colab.ipynb produces the deployable checkpoint. P12 is finalized (and merged) only after the cloud run's real held-out metrics are recorded in docs/reports/P12_MODEL_CARD.md.",
+  "p12_status_note": "Training pipeline delivered and validated on real GPU (RTX 4050). Local from-scratch runs are data-limited (held-out at random) because the PointNet++ CT encoder cold-starts. Architecture Update AUP-001 (APPROVED) adds stage P12a: supervised pretraining of the CT encoder on the 18-dim CT-RATE labels (train-split only), then retrieval fine-tune initialized from those weights. Local-first; the cloud notebook (PR #13) remains the scale/Option-4 lever. P12 finalized once the P12a->retrieval run's real held-out metrics are recorded in docs/reports/P12_MODEL_CARD.md against the AUP-001 §6 decision gate.",
   "critical_tests": {
     "P0": {
       "test_doc_integrity": "passing",

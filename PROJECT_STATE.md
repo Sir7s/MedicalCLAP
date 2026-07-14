@@ -6,11 +6,15 @@
 **Architecture version:** 2.4.5 (`final_freeze_candidate`) · **Master Plan:** v1.0  
 **Current phase:** P12 — Retrieval Training and Model Selection
 **Active branch:** `phase/P12-training`  
-**Current subphase:** training pipeline delivered; cloud checkpoint pending  
-**Phase status:** In progress — pipeline validated on real GPU (RTX 4050); the
-deployable checkpoint comes from cloud training (`ml/notebooks/train_ctrate_colab.ipynb`).
-Local runs are data-limited (held-out at random); P12 is finalized only after the
-cloud run's real metrics are recorded in `docs/reports/P12_MODEL_CARD.md`.
+**Current subphase:** P12a — supervised CT-encoder pretraining (AUP-001, approved)  
+**Phase status:** In progress — pipeline validated on real GPU (RTX 4050). From-scratch
+local runs are data-limited (held-out at random) because the PointNet++ CT encoder
+cold-starts. **Architecture Update AUP-001 (approved)** adds stage **P12a**: pretrain
+the CT encoder on the 18-dim CT-RATE labels (train-split only), then fine-tune retrieval
+from those weights. Local-first; the cloud notebook (`ml/notebooks/train_ctrate_colab.ipynb`,
+PR #13) remains the scale lever. See `docs/architecture/AUP-001_ct_encoder_pretraining.md`.
+P12 is finalized only after the P12a→retrieval run's real metrics are recorded in
+`docs/reports/P12_MODEL_CARD.md`.
 **Completed & merged:** P0–P11 (P11 #12 `9dd65f8`)
 **Next entry gate:** P13 — P12 approved & merged → Qdrant Index & Real Retrieval
 

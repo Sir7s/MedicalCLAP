@@ -81,7 +81,7 @@ def encode_split(model: RetrievalModel, loader: DataLoader, device: str,
 
 
 def train(config: TrainConfig, out_dir: Path, *, allow_cpu: bool = False,
-          resume: bool = False) -> dict:
+          resume: bool = False, init_ct_encoder: Path | None = None) -> dict:
     device = config.device
     if device == "cuda" and not torch.cuda.is_available():
         if not allow_cpu:
@@ -95,13 +95,19 @@ def train(config: TrainConfig, out_dir: Path, *, allow_cpu: bool = False,
 
     datasets, subset = build_datasets(config)
     train_loader = DataLoader(datasets["train"], batch_size=config.batch_size,
-                              shuffle=True, num_workers=config.num_workers, collate_fn=collate)
+                              shuffle=True, num_workers=config.num_workers, collate_fn=collate,
+                              drop_last=True)  # BatchNorm needs >1 sample per (training) batch
     val_loader = DataLoader(datasets["val"], batch_size=config.batch_size,
                             shuffle=False, num_workers=config.num_workers, collate_fn=collate)
     test_loader = DataLoader(datasets["test"], batch_size=config.batch_size,
                              shuffle=False, num_workers=config.num_workers, collate_fn=collate)
 
     model = build_model(config).to(device)
+    if init_ct_encoder is not None:
+        # P12a warm start: load the supervised-pretrained CT-encoder weights.
+        state = torch.load(init_ct_encoder, map_location=device)
+        model.ct_encoder.load_state_dict(state)
+        print(f"[init] CT encoder initialized from {init_ct_encoder}", flush=True)
     trainable = [p for p in model.parameters() if p.requires_grad]
     n_train_p = sum(p.numel() for p in trainable)
     n_total_p = sum(p.numel() for p in model.parameters())
@@ -184,13 +190,16 @@ def train(config: TrainConfig, out_dir: Path, *, allow_cpu: bool = False,
     gpu = torch.cuda.get_device_name(0) if device == "cuda" else platform.processor()
     scope = (f"{len(subset['train'])} training volumes, {config.n_points} points, "
              f"on {gpu}"
-             + (", text backbone frozen." if config.freeze_text_backbone
-                else ", full fine-tune."))
+             + (", text backbone frozen" if config.freeze_text_backbone
+                else ", full fine-tune")
+             + (f", CT encoder pretrained (P12a: {init_ct_encoder})."
+                if init_ct_encoder is not None else ", CT encoder from scratch."))
     manifest = {
         "config": config.to_dict(),
         "device": device,
         "gpu": gpu,
         "scope": scope,
+        "ct_encoder_init": str(init_ct_encoder) if init_ct_encoder else "random",
         "torch": torch.__version__,
         "counts": {k: len(v) for k, v in subset.items()},
         "best_epoch": best_epoch,
@@ -263,6 +272,8 @@ def main() -> None:
     ap.add_argument("--allow-cpu", action="store_true")
     ap.add_argument("--resume", action="store_true",
                     help="continue from <out>/last.pt (survives Colab disconnects)")
+    ap.add_argument("--init-ct-encoder", type=str, default=None,
+                    help="path to a P12a pretrained CT-encoder state_dict (encoder.pt)")
     # Scaling knobs for cloud training (default = local subset in TrainConfig).
     ap.add_argument("--epochs", type=int, default=None)
     ap.add_argument("--n-train", type=int, default=None)
@@ -285,7 +296,9 @@ def main() -> None:
     if args.no_freeze:
         overrides["freeze_text_backbone"] = False
     config = TrainConfig(**{**DEFAULT.to_dict(), **overrides})
-    train(config, Path(args.out), allow_cpu=args.allow_cpu, resume=args.resume)
+    init_enc = Path(args.init_ct_encoder) if args.init_ct_encoder else None
+    train(config, Path(args.out), allow_cpu=args.allow_cpu, resume=args.resume,
+          init_ct_encoder=init_enc)
 
 
 if __name__ == "__main__":
