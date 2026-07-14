@@ -11,3 +11,7 @@
 # the wheel with `curl -C - --retry 20` and `pip install ./<wheel>`.
 torch==2.13.0
 transformers==5.13.1
+# P12b (AUP-002) CT-FM distillation teacher — local only, NOT in the CI ml lane.
+# CT-FM (surajpaib/CT-FM-SegResNet, MIT) is a MONAI SegResNetDS; features are
+# distilled into PointNet++ (its weights are never loaded into our encoder).
+monai>=1.6

@@ -6,14 +6,18 @@
 **Architecture version:** 2.4.5 (`final_freeze_candidate`) · **Master Plan:** v1.0  
 **Current phase:** P12 — Retrieval Training and Model Selection
 **Active branch:** `phase/P12-training`  
-**Current subphase:** P12a — supervised CT-encoder pretraining (AUP-001, approved)  
+**Current subphase:** P12b — CT-FM feature distillation (AUP-002, approved)  
 **Phase status:** In progress — pipeline validated on real GPU (RTX 4050). From-scratch
 local runs are data-limited (held-out at random) because the PointNet++ CT encoder
 cold-starts. **Architecture Update AUP-001 (approved)** adds stage **P12a**: pretrain
 the CT encoder on the 18-dim CT-RATE labels (train-split only), then fine-tune retrieval
-from those weights. Local-first; the cloud notebook (`ml/notebooks/train_ctrate_colab.ipynb`,
-PR #13) remains the scale lever. See `docs/architecture/AUP-001_ct_encoder_pretraining.md`.
-P12 is finalized only after the P12a→retrieval run's real metrics are recorded in
+from those weights — P12a lifted held-out CT→text R@10 0.051→0.127 (first above-random
+model). **AUP-002 (approved)** adds **P12b**: distill the MIT-licensed CT-FM foundation
+model's features into PointNet++ (teacher features cached offline; its weights never
+loaded — CT-CLIP policy honored), then fine-tune retrieval. Local-first; the cloud
+notebook (`ml/notebooks/train_ctrate_colab.ipynb`, PR #13) remains the scale lever. See
+`docs/architecture/AUP-001_*.md` and `AUP-002_ctfm_distillation.md`. P12 is finalized only
+after the best pretrain→retrieval run's real metrics are recorded in
 `docs/reports/P12_MODEL_CARD.md`.
 **Completed & merged:** P0–P11 (P11 #12 `9dd65f8`)
 **Next entry gate:** P13 — P12 approved & merged → Qdrant Index & Real Retrieval
