@@ -8,11 +8,12 @@
   "master_plan_version": "1.0",
   "current_phase": "P12",
   "current_phase_name": "Retrieval Training and Model Selection",
-  "current_subphase": "P12b",
+  "current_subphase": "P12d",
   "phase_status": "in_progress",
   "approved_architecture_addenda": [
     "docs/architecture/AUP-001_ct_encoder_pretraining.md",
-    "docs/architecture/AUP-002_ctfm_distillation.md"
+    "docs/architecture/AUP-002_ctfm_distillation.md",
+    "docs/architecture/AUP-004_findings_reranking.md"
   ],
   "completed_phases": [
     "P0",
