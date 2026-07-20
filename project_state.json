@@ -6,8 +6,8 @@
   "last_updated": "2026-07-12",
   "architecture_version": "2.4.5",
   "master_plan_version": "1.0",
-  "current_phase": "P17",
-  "current_phase_name": "Security, Privacy and Public Repository Hardening",
+  "current_phase": "P18",
+  "current_phase_name": "Backup, Restore and Failure Recovery",
   "current_subphase": null,
   "phase_status": "in_review",
   "approved_architecture_addenda": [
@@ -32,7 +32,8 @@
     "P12",
     "P13",
     "P14",
-    "P15"
+    "P15",
+    "P17"
   ],
   "approved_phases": [
     "P0",
@@ -50,9 +51,10 @@
     "P12",
     "P13",
     "P14",
-    "P15"
+    "P15",
+    "P17"
   ],
-  "last_approved_exit_report": "docs/reports/P15_EXIT_REPORT.md",
+  "last_approved_exit_report": "docs/reports/P17_EXIT_REPORT.md",
   "phase_history": [
     {
       "phase": "P0",
@@ -183,9 +185,17 @@
       "merged_at": "2026-07-21",
       "result": "approved_and_merged",
       "note": "Save/revisit/export searches (JSON+CSV with formula-injection hardening); History UI."
+    },
+    {
+      "phase": "P17",
+      "name": "Security, Privacy and Public Repository Hardening",
+      "pull_request": "https://github.com/Sir7s/MedicalCLAP/pull/18",
+      "merged_at": "2026-07-21",
+      "result": "approved_and_merged",
+      "note": "Third-party notices + non-commercial (CC-BY-NC-SA) declaration; honest SECURITY.md incl. missing-auth admission; 9 CI-enforced hardening tests."
     }
   ],
-  "next_entry_gate": "P18 entry: P17 approved and merged -> Backup, Restore & Failure Recovery.",
+  "next_entry_gate": "P19 entry: P18 approved and merged -> Full Integration, Performance & Regression.",
   "remaining_phases": {
     "amended_by": "docs/architecture/AUP-005_architecture_pivot_and_scope.md",
     "P13": "Qdrant Index & Real Retrieval Integration (CT-CLIP embeddings + re-rank/explanations + real GPU worker)",
@@ -197,7 +207,7 @@
     "P19": "Full Integration, Performance & Regression (incl. CT-CLIP latency + ~2.5 GB VRAM in the serving path)",
     "P20": "Freeze Run, Documentation & Public Release (against the AUP-005-amended Freeze Test Profile)"
   },
-  "active_branch": "phase/P17-security",
+  "active_branch": "phase/P18-backup-restore",
   "open_pull_request": null,
   "critical_tests": {
     "P0": {
@@ -333,6 +343,16 @@
       "bandit_sast": "passing",
       "pip_audit": "passing",
       "gitleaks": "passing"
+    },
+    "P18": {
+      "backup_verifies_clean": "passing",
+      "workspace_round_trip": "passing",
+      "corruption_detected": "passing",
+      "missing_component_detected": "passing",
+      "restore_refuses_corrupt_backup": "passing",
+      "restore_dry_run_plan": "passing",
+      "external_artifact_provenance_recorded": "passing",
+      "unavailable_components_recorded_with_reason": "passing"
     }
   },
   "architecture": {
