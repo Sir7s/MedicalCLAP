@@ -1,47 +1,88 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
+import "./theme.css";
 import Dashboard from "./Dashboard";
+import Search, { useRetrievalStatus } from "./Search";
 import Viewer from "./Viewer";
+import type { Lang } from "./i18n";
+import { t } from "./i18n";
 
-const BACKEND_URL =
-  (import.meta.env.VITE_BACKEND_URL as string | undefined) ?? "http://127.0.0.1:8000";
+type Tab = "search" | "viewer" | "tasks";
 
-type Health = { status: string; service: string; version: string };
-
+/** P14 — Clinical Workstation shell (see docs/reports/P14_DESIGN_DECISION.md). */
 export default function App() {
-  const [health, setHealth] = useState<Health | null>(null);
-  const [error, setError] = useState<string | null>(null);
+  const [lang, setLang] = useState<Lang>("en");
+  const [tab, setTab] = useState<Tab>("search");
+  const s = t(lang);
+  const status = useRetrievalStatus();
 
-  useEffect(() => {
-    fetch(`${BACKEND_URL}/health`)
-      .then((r) => (r.ok ? r.json() : Promise.reject(new Error(`HTTP ${r.status}`))))
-      .then(setHealth)
-      .catch((e: Error) => setError(e.message));
-  }, []);
+  const engineOk = status?.embedder_available ?? false;
+  const indexed = status?.volumes_indexed ?? 0;
 
   return (
-    <main style={{ fontFamily: "system-ui, sans-serif", maxWidth: 640, margin: "3rem auto", padding: "0 1rem" }}>
-      <h1>3D Medical CLIP</h1>
-      <p>Local chest-CT ↔ report retrieval platform — developer skeleton (P1).</p>
+    <div className="app">
+      <header className="topbar">
+        <span className="brand">
+          {s.brand}
+          <small>{s.tagline}</small>
+        </span>
 
-      <section style={{ marginTop: "1.5rem" }}>
-        <h2 style={{ fontSize: "1rem" }}>Backend status</h2>
-        {health && (
-          <p style={{ color: "green" }}>
-            ● {health.service} ok (v{health.version})
-          </p>
-        )}
-        {error && <p style={{ color: "crimson" }}>● backend unreachable: {error}</p>}
-        {!health && !error && <p>Checking…</p>}
-      </section>
+        <nav className="tabs" style={{ marginLeft: "1rem" }}>
+          <button
+            className={`tab${tab === "search" ? " active" : ""}`}
+            onClick={() => setTab("search")}
+          >
+            {s.tabSearch}
+          </button>
+          <button
+            className={`tab${tab === "viewer" ? " active" : ""}`}
+            onClick={() => setTab("viewer")}
+          >
+            {s.tabViewer}
+          </button>
+          <button
+            className={`tab${tab === "tasks" ? " active" : ""}`}
+            onClick={() => setTab("tasks")}
+          >
+            {s.tabTasks}
+          </button>
+        </nav>
 
-      <Viewer />
+        <span className="spacer" />
 
-      <Dashboard />
+        <span className="status" title={engineOk ? s.engineOk : s.engineDown}>
+          <span className={`dot ${engineOk ? "ok" : "err"}`} />
+          {engineOk ? s.engineOk : s.engineDown}
+          {status && (
+            <span style={{ marginLeft: "0.5rem" }}>
+              · {indexed} {s.indexed}
+            </span>
+          )}
+        </span>
 
-      <footer style={{ marginTop: "2rem", fontSize: "0.8rem", color: "#666" }}>
-        Research and demonstration use only. Not intended for clinical diagnosis or
-        treatment decisions.
-      </footer>
-    </main>
+        <button
+          className="tab"
+          onClick={() => setLang(lang === "en" ? "zh" : "en")}
+          aria-label="toggle language"
+        >
+          {lang === "en" ? "中文" : "EN"}
+        </button>
+      </header>
+
+      {tab === "search" && <Search lang={lang} />}
+
+      {tab === "viewer" && (
+        <div className="pane" style={{ flex: 1 }}>
+          <Viewer />
+        </div>
+      )}
+
+      {tab === "tasks" && (
+        <div className="pane" style={{ flex: 1 }}>
+          <Dashboard />
+        </div>
+      )}
+
+      <footer className="disclaimer">{s.disclaimer}</footer>
+    </div>
   );
 }

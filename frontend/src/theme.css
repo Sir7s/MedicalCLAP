@@ -1,0 +1,110 @@
+/* P14 — Clinical Workstation design system (dark, radiology-native).
+   Dark surround preserves perceived contrast in grayscale CT (PACS convention). */
+
+:root {
+  --bg: #0d1117;
+  --panel: #161b22;
+  --panel-2: #1c2129;
+  --border: #30363d;
+  --text: #e6edf3;
+  --text-dim: #8b949e;
+  --accent: #58a6ff;
+  --ok: #3fb950;
+  --warn: #d29922;
+  --err: #f85149;
+  --radius: 6px;
+  --mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+  font-size: 14px;
+}
+
+.app { min-height: 100vh; display: flex; flex-direction: column; }
+
+/* ---- top bar ---- */
+.topbar {
+  display: flex; align-items: center; gap: 1rem;
+  padding: 0.6rem 1rem;
+  background: var(--panel);
+  border-bottom: 1px solid var(--border);
+}
+.brand { font-weight: 600; letter-spacing: 0.2px; }
+.brand small { color: var(--text-dim); font-weight: 400; margin-left: 0.5rem; }
+.spacer { flex: 1; }
+
+.tabs { display: flex; gap: 0.25rem; }
+.tab {
+  background: transparent; border: 1px solid transparent; color: var(--text-dim);
+  padding: 0.35rem 0.75rem; border-radius: var(--radius); cursor: pointer;
+  font-size: 13px;
+}
+.tab:hover { color: var(--text); background: var(--panel-2); }
+.tab.active { color: var(--text); background: var(--panel-2); border-color: var(--border); }
+
+.status { display: flex; align-items: center; gap: 0.4rem; font-size: 12px; color: var(--text-dim); }
+.dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
+.dot.ok { background: var(--ok); }
+.dot.err { background: var(--err); }
+.dot.warn { background: var(--warn); }
+
+/* ---- two-pane layout ---- */
+.panes { display: grid; grid-template-columns: minmax(360px, 460px) 1fr; gap: 1px;
+         background: var(--border); flex: 1; min-height: 0; }
+.pane { background: var(--bg); padding: 1rem; overflow-y: auto; }
+@media (max-width: 900px) { .panes { grid-template-columns: 1fr; } }
+
+/* ---- controls ---- */
+.field { display: flex; flex-direction: column; gap: 0.35rem; margin-bottom: 0.75rem; }
+label { font-size: 12px; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.4px; }
+textarea, input[type="text"] {
+  background: var(--panel); color: var(--text); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 0.55rem 0.65rem; font: inherit; resize: vertical;
+}
+textarea:focus, input:focus { outline: none; border-color: var(--accent); }
+button.primary {
+  background: var(--accent); color: #06121f; border: none; border-radius: var(--radius);
+  padding: 0.55rem 1rem; font-weight: 600; cursor: pointer;
+}
+button.primary:disabled { opacity: 0.5; cursor: not-allowed; }
+.rowline { display: flex; gap: 0.75rem; align-items: center; }
+input[type="range"] { flex: 1; accent-color: var(--accent); }
+
+/* ---- results ---- */
+.result {
+  background: var(--panel); border: 1px solid var(--border); border-radius: var(--radius);
+  padding: 0.7rem 0.8rem; margin-bottom: 0.6rem; cursor: pointer;
+}
+.result:hover { border-color: var(--accent); }
+.result.selected { border-color: var(--accent); background: var(--panel-2); }
+.result-head { display: flex; align-items: baseline; gap: 0.6rem; }
+.rank { color: var(--text-dim); font-family: var(--mono); font-size: 12px; }
+.vol { font-weight: 600; overflow-wrap: anywhere; }
+.score { margin-left: auto; font-family: var(--mono); font-size: 12px; color: var(--accent);
+         font-variant-numeric: tabular-nums; }
+.why { margin-top: 0.4rem; font-size: 12.5px; color: var(--text-dim); }
+.chips { display: flex; flex-wrap: wrap; gap: 0.3rem; margin-top: 0.45rem; }
+.chip {
+  background: rgba(88, 166, 255, 0.14); color: var(--accent);
+  border: 1px solid rgba(88, 166, 255, 0.35);
+  border-radius: 999px; padding: 0.1rem 0.55rem; font-size: 11.5px;
+}
+.report { margin-top: 0.5rem; font-size: 12.5px; color: var(--text-dim); line-height: 1.45;
+          max-height: 5.4em; overflow: hidden; }
+
+.empty { color: var(--text-dim); padding: 1.5rem 0; text-align: center; font-size: 13px; }
+.error { color: var(--err); background: rgba(248,81,73,0.08);
+         border: 1px solid rgba(248,81,73,0.3); border-radius: var(--radius);
+         padding: 0.6rem 0.7rem; font-size: 13px; }
+
+h2.section { font-size: 12px; color: var(--text-dim); text-transform: uppercase;
+             letter-spacing: 0.5px; margin: 0 0 0.6rem; font-weight: 600; }
+
+.disclaimer { padding: 0.5rem 1rem; font-size: 11.5px; color: var(--text-dim);
+              background: var(--panel); border-top: 1px solid var(--border); }
