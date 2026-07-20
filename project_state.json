@@ -6,8 +6,8 @@
   "last_updated": "2026-07-12",
   "architecture_version": "2.4.5",
   "master_plan_version": "1.0",
-  "current_phase": "P13",
-  "current_phase_name": "Qdrant Index and Real Retrieval Integration",
+  "current_phase": "P14",
+  "current_phase_name": "Professional Frontend Design and Core UI",
   "current_subphase": null,
   "phase_status": "in_review",
   "approved_architecture_addenda": [
@@ -29,7 +29,8 @@
     "P9",
     "P10",
     "P11",
-    "P12"
+    "P12",
+    "P13"
   ],
   "approved_phases": [
     "P0",
@@ -44,9 +45,10 @@
     "P9",
     "P10",
     "P11",
-    "P12"
+    "P12",
+    "P13"
   ],
-  "last_approved_exit_report": "docs/reports/P12_EXIT_REPORT.md",
+  "last_approved_exit_report": "docs/reports/P13_EXIT_REPORT.md",
   "phase_history": [
     {
       "phase": "P0",
@@ -153,9 +155,17 @@
       "merged_at": "2026-07-21",
       "result": "approved_and_merged",
       "note": "Deployable retriever via AUP-005 pivot: CT-CLIP recall (held-out R@10 0.511) + findings-grounded explainable re-rank (0.522/0.533). From-scratch PointNet++ retained as documented negative result."
+    },
+    {
+      "phase": "P13",
+      "name": "Qdrant Index and Real Retrieval Integration",
+      "pull_request": "https://github.com/Sir7s/MedicalCLAP/pull/15",
+      "merged_at": "2026-07-21",
+      "result": "approved_and_merged",
+      "note": "CT-CLIP embeddings in Qdrant + findings-grounded explainable re-rank API + real CT-CLIP GPU worker replacing the P4 mock."
     }
   ],
-  "next_entry_gate": "P13 entry: P12 approved and merged -> Qdrant Index & Real Retrieval Integration (AUP-005 scope: index CT-CLIP embeddings, findings re-rank + explanations in the API, and a REAL GPU worker running CT-CLIP inference replacing the P4 mock).",
+  "next_entry_gate": "P15 entry: P14 approved and merged -> Full History, Export & User Workflow.",
   "remaining_phases": {
     "amended_by": "docs/architecture/AUP-005_architecture_pivot_and_scope.md",
     "P13": "Qdrant Index & Real Retrieval Integration (CT-CLIP embeddings + re-rank/explanations + real GPU worker)",
@@ -167,7 +177,7 @@
     "P19": "Full Integration, Performance & Regression (incl. CT-CLIP latency + ~2.5 GB VRAM in the serving path)",
     "P20": "Freeze Run, Documentation & Public Release (against the AUP-005-amended Freeze Test Profile)"
   },
-  "active_branch": "phase/P13-retrieval-integration",
+  "active_branch": "phase/P14-frontend",
   "open_pull_request": null,
   "critical_tests": {
     "P0": {
@@ -280,6 +290,12 @@
       "qdrant_upsert_search": "passing (compose lane)",
       "api_contract_both_query_types": "passing",
       "embedder_outage_returns_503": "passing"
+    },
+    "P14": {
+      "typecheck": "passing",
+      "production_build": "passing",
+      "bilingual_strings_typed": "passing (missing translation = compile error)",
+      "explanations_rendered_not_invented": "passing (UI renders only server-grounded findings)"
     }
   },
   "architecture": {

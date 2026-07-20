@@ -4,8 +4,8 @@
 **Last updated:** 2026-07-21  
 **Repository:** Sir7s/MedicalCLAP  
 **Architecture version:** 2.4.5 (`final_freeze_candidate`) · **Master Plan:** v1.0  
-**Current phase:** P13 — Qdrant Index and Real Retrieval Integration
-**Active branch:** `phase/P13-retrieval-integration`  
+**Current phase:** P14 — Professional Frontend Design and Core UI
+**Active branch:** `phase/P14-frontend`  
 **Current subphase:** —  
 **Phase status:** In progress — indexing CT-CLIP embeddings in Qdrant, exposing search
 (text/CT query) with findings re-ranking + explanations, and replacing the P4 **mock**
@@ -16,7 +16,7 @@ recall (held-out **R@10 0.511**) + our findings-grounded explainable re-ranking
 (0.522 CT→text / 0.533 text→CT). The from-scratch PointNet++ encoder is retained as a
 **documented negative result** (five approaches, all 1.0–1.5× random). See
 `docs/reports/P12_{EXIT_REPORT,MODEL_CARD}.md` and `docs/architecture/AUP-005_*.md`.
-**Completed & merged:** P0–P12 (P12 #13 — CT-CLIP retrieval + explainable re-rank)
+**Completed & merged:** P0–P13 (P13 #15 — live retrieval API + CT-CLIP worker)
 **Next entry gate:** P13 — P12 approved & merged → Qdrant Index & Real Retrieval
 
 ---
