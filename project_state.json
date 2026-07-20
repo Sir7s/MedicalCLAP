@@ -3,13 +3,13 @@
   "working_title": "3D Medical CLIP",
   "repository": "Sir7s/MedicalCLAP",
   "status_version": "1.0",
-  "last_updated": "2026-07-12",
+  "last_updated": "2026-07-21",
   "architecture_version": "2.4.5",
   "master_plan_version": "1.0",
-  "current_phase": "P19",
-  "current_phase_name": "Full Integration, Performance and Regression",
+  "current_phase": "COMPLETE",
+  "current_phase_name": "Program complete — freeze passed",
   "current_subphase": null,
-  "phase_status": "in_review",
+  "phase_status": "program_complete",
   "approved_architecture_addenda": [
     "docs/architecture/AUP-001_ct_encoder_pretraining.md",
     "docs/architecture/AUP-002_ctfm_distillation.md",
@@ -34,7 +34,9 @@
     "P14",
     "P15",
     "P17",
-    "P18"
+    "P18",
+    "P19",
+    "P20"
   ],
   "approved_phases": [
     "P0",
@@ -54,9 +56,11 @@
     "P14",
     "P15",
     "P17",
-    "P18"
+    "P18",
+    "P19",
+    "P20"
   ],
-  "last_approved_exit_report": "docs/reports/P18_EXIT_REPORT.md",
+  "last_approved_exit_report": "docs/reports/P20_EXIT_REPORT.md",
   "phase_history": [
     {
       "phase": "P0",
@@ -203,9 +207,23 @@
       "merged_at": "2026-07-21",
       "result": "approved_and_merged",
       "note": "backup CLI (create/verify/restore/list) with checksum integrity, restore refusal on corruption, and provenance-recorded external artifacts."
+    },
+    {
+      "phase": "P19",
+      "name": "Full Integration, Performance and Regression",
+      "pull_request": "https://github.com/Sir7s/MedicalCLAP/pull/20",
+      "merged_at": "2026-07-21",
+      "result": "approved_and_merged",
+      "note": "E2E user journey on real datastores; perf harness (re-rank p50 0.19ms); regression invariants locked."
+    },
+    {
+      "phase": "P20",
+      "name": "Freeze Run, Documentation and Public Release",
+      "result": "complete_freeze_passed",
+      "freeze_run": "docs/reports/P20_FREEZE_RUN.md"
     }
   ],
-  "next_entry_gate": "P20 entry: P19 approved and merged -> Freeze Run, Documentation & Public Release.",
+  "next_entry_gate": null,
   "remaining_phases": {
     "amended_by": "docs/architecture/AUP-005_architecture_pivot_and_scope.md",
     "P13": "Qdrant Index & Real Retrieval Integration (CT-CLIP embeddings + re-rank/explanations + real GPU worker)",
@@ -217,7 +235,7 @@
     "P19": "Full Integration, Performance & Regression (incl. CT-CLIP latency + ~2.5 GB VRAM in the serving path)",
     "P20": "Freeze Run, Documentation & Public Release (against the AUP-005-amended Freeze Test Profile)"
   },
-  "active_branch": "phase/P19-integration",
+  "active_branch": "phase/P20-freeze",
   "open_pull_request": null,
   "critical_tests": {
     "P0": {
@@ -376,7 +394,7 @@
   },
   "architecture": {
     "bundle_version": "2.4.5",
-    "document": "Architecture Specification Bundle v2.4.5 \u2014 Clean Consolidated Edition",
+    "document": "Architecture Specification Bundle v2.4.5 — Clean Consolidated Edition",
     "status": "final_freeze_candidate",
     "frozen": false,
     "upgrade_required": false,
@@ -405,7 +423,7 @@
     "timeline_target": "1 month for a showcase-ready version",
     "weekly_commitment": "25+ hours",
     "priority_order": [
-      "Complete and reliable CT\u2194Report retrieval",
+      "Complete and reliable CT↔Report retrieval",
       "Professional product-quality frontend",
       "History, export, voice and bilingual UX",
       "Text-guided 3D segmentation if feasible, without sacrificing retrieval"
@@ -454,7 +472,7 @@
     "external_validation_dataset": "BIMCV-R",
     "segmentation_dataset": "ReXGroundingCT",
     "future_region_semantics_dataset": "RadGenome-Chest CT",
-    "local_storage_budget": "100\u2013250 GB",
+    "local_storage_budget": "100–250 GB",
     "download_strategy": "Prepare the full CT-RATE dataset where practical, but train initially on subsets.",
     "privacy_rule": "Use public, de-identified data only."
   },
@@ -562,13 +580,7 @@
     "Phase Exit Reports are the authoritative phase-status records after approval and merge."
   ],
   "current_known_issues": [],
-  "pending_decisions": [
-    "Exact dependency versions and image digests will be locked during P0.",
-    "Exact Celery/Redis broker parameters will be locked during the control-plane phases.",
-    "Exact PointNet++ layer configuration and training hyperparameters will be selected through small-scale experiments.",
-    "Exact lightweight local Chinese-to-English translation model will be selected during the translation phase.",
-    "Final frontend visual direction will be selected from three AI-generated design proposals."
-  ],
+  "pending_decisions": [],
   "next_action": {
     "phase": "P0",
     "instruction": "Generate the P0 Phase Execution Plan, verify all authoritative documents, lock repository standards and dependencies, initialize GitHub Flow and CI, then execute P0 subphases sequentially.",
@@ -609,5 +621,12 @@
     "text_encoder_tokenizer": "emilyalsentzer/Bio_ClinicalBERT",
     "torch_required": false
   },
-  "training_decision": "local RTX 4050 (6GB) small-scale training (user 2026-07-12)"
+  "training_decision": "local RTX 4050 (6GB) small-scale training (user 2026-07-12)",
+  "freeze_status": "FREEZE_PASSED",
+  "freeze_run_report": "docs/reports/P20_FREEZE_RUN.md",
+  "freeze_profile_amendment": "docs/specs/FREEZE_TEST_PROFILE_AMENDMENT.md",
+  "freeze_passed_at": "2026-07-21",
+  "dropped_phases": {
+    "P16": "dropped by AUP-005 (text-guided 3D segmentation out of scope)"
+  }
 }

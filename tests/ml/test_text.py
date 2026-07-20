@@ -116,9 +116,11 @@ def test_zh_en_translation_regression():
     from ml.text import translate
     try:
         translate.ensure_model()
+        # The first translation can still fetch the package lazily, so it must be
+        # inside the guard too — a network blip should skip, not fail the suite.
+        out = translate.translate_zh_en("肺部有一个小结节").lower()
     except Exception as exc:  # noqa: BLE001 - package download unavailable
         pytest.skip(f"translation model unavailable: {exc}")
-    out = translate.translate_zh_en("肺部有一个小结节").lower()
     assert out  # non-empty
     assert translate.translate_zh_en("肺部有一个小结节").lower() == out  # deterministic
     assert any(w in out for w in ("lung", "nodule", "pulmonary"))
