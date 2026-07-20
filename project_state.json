@@ -6,10 +6,16 @@
   "last_updated": "2026-07-12",
   "architecture_version": "2.4.5",
   "master_plan_version": "1.0",
-  "current_phase": "P11",
-  "current_phase_name": "Retrieval Model Baseline",
+  "current_phase": "P13",
+  "current_phase_name": "Qdrant Index and Real Retrieval Integration",
   "current_subphase": null,
-  "phase_status": "in_review",
+  "phase_status": "in_progress",
+  "approved_architecture_addenda": [
+    "docs/architecture/AUP-001_ct_encoder_pretraining.md",
+    "docs/architecture/AUP-002_ctfm_distillation.md",
+    "docs/architecture/AUP-004_findings_reranking.md",
+    "docs/architecture/AUP-005_architecture_pivot_and_scope.md"
+  ],
   "completed_phases": [
     "P0",
     "P1",
@@ -21,7 +27,9 @@
     "P7",
     "P8",
     "P9",
-    "P10"
+    "P10",
+    "P11",
+    "P12"
   ],
   "approved_phases": [
     "P0",
@@ -34,9 +42,11 @@
     "P7",
     "P8",
     "P9",
-    "P10"
+    "P10",
+    "P11",
+    "P12"
   ],
-  "last_approved_exit_report": "docs/reports/P10_EXIT_REPORT.md",
+  "last_approved_exit_report": "docs/reports/P12_EXIT_REPORT.md",
   "phase_history": [
     {
       "phase": "P0",
@@ -127,11 +137,38 @@
       "merge_commit": "223cb33",
       "merged_at": "2026-07-12",
       "result": "approved_and_merged"
+    },
+    {
+      "phase": "P11",
+      "name": "Retrieval Model Baseline",
+      "pull_request": "https://github.com/Sir7s/MedicalCLAP/pull/12",
+      "merge_commit": "9dd65f8",
+      "merged_at": "2026-07-12",
+      "result": "approved_and_merged"
+    },
+    {
+      "phase": "P12",
+      "name": "Retrieval Training and Model Selection",
+      "pull_request": "https://github.com/Sir7s/MedicalCLAP/pull/13",
+      "merged_at": "2026-07-21",
+      "result": "approved_and_merged",
+      "note": "Deployable retriever via AUP-005 pivot: CT-CLIP recall (held-out R@10 0.511) + findings-grounded explainable re-rank (0.522/0.533). From-scratch PointNet++ retained as documented negative result."
     }
   ],
-  "next_entry_gate": "P12 entry: P11 approved and merged -> Retrieval Training & Model Selection.",
-  "active_branch": "phase/P11-retrieval-model",
-  "open_pull_request": "https://github.com/Sir7s/MedicalCLAP/pull/12",
+  "next_entry_gate": "P13 entry: P12 approved and merged -> Qdrant Index & Real Retrieval Integration (AUP-005 scope: index CT-CLIP embeddings, findings re-rank + explanations in the API, and a REAL GPU worker running CT-CLIP inference replacing the P4 mock).",
+  "remaining_phases": {
+    "amended_by": "docs/architecture/AUP-005_architecture_pivot_and_scope.md",
+    "P13": "Qdrant Index & Real Retrieval Integration (CT-CLIP embeddings + re-rank/explanations + real GPU worker)",
+    "P14": "Professional Frontend Design & Core UI (3 design directions -> user selects; bilingual/voice query, viewer, explained results; no segmentation view) [USER GATE]",
+    "P15": "Full History, Export & User Workflow (minus segmentation artifacts)",
+    "P16": "DROPPED (segmentation) - see AUP-005",
+    "P17": "Security, Privacy & Public Repository Hardening (+ CC-BY-NC-SA attribution / share-alike / non-commercial notice)",
+    "P18": "Backup, Restore & Failure Recovery (incl. 1.7 GB CT-CLIP checkpoint as un-committed restorable artifact)",
+    "P19": "Full Integration, Performance & Regression (incl. CT-CLIP latency + ~2.5 GB VRAM in the serving path)",
+    "P20": "Freeze Run, Documentation & Public Release (against the AUP-005-amended Freeze Test Profile)"
+  },
+  "active_branch": "phase/P13-retrieval-integration",
+  "open_pull_request": null,
   "critical_tests": {
     "P0": {
       "test_doc_integrity": "passing",
@@ -228,11 +265,19 @@
       "checkpoint_reload_consistency": "passing",
       "metrics_above_random": "passing",
       "real_data_forward": "passing"
+    },
+    "P12": {
+      "train_loop_smoke": "passing",
+      "resumable_checkpoint": "passing",
+      "real_gpu_training": "passing (RTX 4050, torch 2.11.0+cu128)",
+      "rerank_math": "passing",
+      "held_out_retrieval": "passing (CT-CLIP R@10 0.511 on leakage-free CT-RATE valid)",
+      "rerank_improves_ordering": "passing (+0.011 CT->text, +0.022 text->CT R@10)"
     }
   },
   "architecture": {
     "bundle_version": "2.4.5",
-    "document": "Architecture Specification Bundle v2.4.5 — Clean Consolidated Edition",
+    "document": "Architecture Specification Bundle v2.4.5 \u2014 Clean Consolidated Edition",
     "status": "final_freeze_candidate",
     "frozen": false,
     "upgrade_required": false,
@@ -261,7 +306,7 @@
     "timeline_target": "1 month for a showcase-ready version",
     "weekly_commitment": "25+ hours",
     "priority_order": [
-      "Complete and reliable CT↔Report retrieval",
+      "Complete and reliable CT\u2194Report retrieval",
       "Professional product-quality frontend",
       "History, export, voice and bilingual UX",
       "Text-guided 3D segmentation if feasible, without sacrificing retrieval"
@@ -310,7 +355,7 @@
     "external_validation_dataset": "BIMCV-R",
     "segmentation_dataset": "ReXGroundingCT",
     "future_region_semantics_dataset": "RadGenome-Chest CT",
-    "local_storage_budget": "100–250 GB",
+    "local_storage_budget": "100\u2013250 GB",
     "download_strategy": "Prepare the full CT-RATE dataset where practical, but train initially on subsets.",
     "privacy_rule": "Use public, de-identified data only."
   },
@@ -340,13 +385,21 @@
     "ct_clip_policy": "May reference CT-CLIP data processing, training strategy and evaluation methods, but must not load incompatible CT image encoder weights into PointNet++."
   },
   "segmentation": {
-    "required_for_final_demo": true,
-    "status": "planned_experimental",
-    "dataset": "ReXGroundingCT",
-    "architecture": "Frozen PointNet++ retrieval encoder + BioClinicalBERT text encoder + text-conditioned 3D segmentation head",
-    "encoder_training_policy": "Freeze the trained retrieval encoder initially and train only the segmentation head",
-    "gate_required": true,
-    "retrieval_has_priority_if_time_conflicts": true
+    "required_for_final_demo": false,
+    "status": "dropped",
+    "dropped_by": "docs/architecture/AUP-005_architecture_pivot_and_scope.md",
+    "dropped_on": "2026-07-20",
+    "rationale": "User decision; consistent with planned_experimental status and the recorded rule that retrieval has priority if time conflicts. Its stated architecture (frozen PointNet++ + text-conditioned head) is moot since PointNet++ is no longer the deployed encoder.",
+    "dataset": "ReXGroundingCT (no longer an acquisition target)",
+    "phase": "P16 removed from the plan"
+  },
+  "retrieval_architecture": {
+    "status": "amended by AUP-005 (2026-07-20)",
+    "deployed_recall": "CT-CLIP (CT-ViT image tower + text tower), CC-BY-NC-SA, local inference ~2.25 GB VRAM",
+    "original_contribution": "findings-grounded explainable re-ranking layer (reorders top-K by clinical-findings agreement; renders shared findings as the reason)",
+    "held_out_metrics": "CT-CLIP recall R@10 0.511 (90 held-out CT-RATE valid volumes); + re-rank best R@10 0.522 (CT->text) / 0.533 (text->CT)",
+    "superseded_encoder": "PointNet++ point-cloud encoder (P9/P11/P12a-b) reclassified as documented research; removed from the serving path after five approaches plateaued at 1.0-1.5x random",
+    "licence_obligation": "CT-CLIP + CT-RATE are CC-BY-NC-SA: non-commercial only, attribution required, derivatives share-alike (enforced in P17)"
   },
   "frontend": {
     "quality_target": "Near-product professional interface",
@@ -456,5 +509,6 @@
     "speech": "faster-whisper base",
     "text_encoder_tokenizer": "emilyalsentzer/Bio_ClinicalBERT",
     "torch_required": false
-  }
+  },
+  "training_decision": "local RTX 4050 (6GB) small-scale training (user 2026-07-12)"
 }

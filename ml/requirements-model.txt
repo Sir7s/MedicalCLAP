@@ -1,4 +1,17 @@
-# P11 model dependencies (local; heavy — NOT installed in the CI ml lane).
-# Install CPU torch: pip install torch --index-url https://download.pytorch.org/whl/cpu
+# P11/P12 model dependencies (local; heavy — NOT installed in the CI ml lane).
+#
+# CPU (any platform):
+#   pip install torch --index-url https://download.pytorch.org/whl/cpu
+#
+# GPU (P12 local training, NVIDIA + Python 3.14): only the cu128 index ships
+# cp314 wheels. cu124 has none, so torch breaks on 3.14 with the default index.
+#   pip install torch --index-url https://download.pytorch.org/whl/cu128
+#   # verified: torch 2.11.0+cu128, CUDA 12.8, RTX 4050 Laptop (6 GB)
+# Large download (~2.6 GB) over a flaky CDN — if pip's SSL retries fail, fetch
+# the wheel with `curl -C - --retry 20` and `pip install ./<wheel>`.
 torch==2.13.0
 transformers==5.13.1
+# P12b (AUP-002) CT-FM distillation teacher — local only, NOT in the CI ml lane.
+# CT-FM (surajpaib/CT-FM-SegResNet, MIT) is a MONAI SegResNetDS; features are
+# distilled into PointNet++ (its weights are never loaded into our encoder).
+monai>=1.6

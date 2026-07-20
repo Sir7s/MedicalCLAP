@@ -139,13 +139,16 @@ def test_lease_commit_before_ack_crash_single_lease():
     """FR-EXEC-003: crash after the lease commit, before ACK -> redelivery is a
     safe duplicate; exactly one lease acquisition."""
     cid, jid = _new_dispatched_command()
+    # Shared CI Redis: assert this test's delta on the group PEL, not a global
+    # absolute (a prior test may leave unrelated pending messages).
+    pending_before = R.xpending(EXEC_STREAM, SUPERVISOR_GROUP)["pending"]
     failpoints.arm("FP-EXEC-BEFORE-QUEUE-ACK")
     with SessionLocal() as s:
         with pytest.raises(failpoints.Failpoint):
             sup.consume_execution_queue(s, R, supervisor_id=SUP_A)
-    # Lease is durable but the message was never ACKed.
+    # Lease is durable but the message was never ACKed -> exactly one new pending.
     assert _job(jid).execution_lease_revision == 1
-    assert R.xpending(EXEC_STREAM, SUPERVISOR_GROUP)["pending"] == 1
+    assert R.xpending(EXEC_STREAM, SUPERVISOR_GROUP)["pending"] == pending_before + 1
 
     # Broker re-delivery (claim) -> safe duplicate, no second lease.
     with SessionLocal() as s:
@@ -154,7 +157,8 @@ def test_lease_commit_before_ack_crash_single_lease():
     job = _job(jid)
     assert job.execution_lease_revision == 1  # unchanged
     assert job.state == "leased"
-    assert R.xpending(EXEC_STREAM, SUPERVISOR_GROUP)["pending"] == 0
+    # This job's message is ACKed -> back to the pre-test pending level.
+    assert R.xpending(EXEC_STREAM, SUPERVISOR_GROUP)["pending"] == pending_before
 
 
 def test_fencing_old_revision_cannot_write():

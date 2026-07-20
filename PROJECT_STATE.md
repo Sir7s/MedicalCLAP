@@ -1,15 +1,23 @@
 # 3D Medical CLIP — PROJECT STATE
 
 **State version:** 1.0  
-**Last updated:** 2026-07-01  
+**Last updated:** 2026-07-21  
 **Repository:** Sir7s/MedicalCLAP  
 **Architecture version:** 2.4.5 (`final_freeze_candidate`) · **Master Plan:** v1.0  
-**Current phase:** P11 — Retrieval Model Baseline
-**Active branch:** `phase/P11-retrieval-model`  
-**Current subphase:** S6 complete — P11 in review  
-**Phase status:** In review — PointNet++ & BioClinicalBERT baseline (tiny overfit Recall@1=1.0, real-data verified); auto-merge on green CI
-**Completed & merged:** P0–P10 (P10 #11 `223cb33`)
-**Next entry gate:** P12 — P11 approved & merged → Retrieval Training & Model Selection
+**Current phase:** P13 — Qdrant Index and Real Retrieval Integration
+**Active branch:** `phase/P13-retrieval-integration`  
+**Current subphase:** —  
+**Phase status:** In progress — indexing CT-CLIP embeddings in Qdrant, exposing search
+(text/CT query) with findings re-ranking + explanations, and replacing the P4 **mock**
+GPU worker with a real CT-CLIP inference worker (AUP-005 scope).
+
+**P12 closed:** a deployable retriever was achieved via the **AUP-005 pivot** — CT-CLIP
+recall (held-out **R@10 0.511**) + our findings-grounded explainable re-ranking
+(0.522 CT→text / 0.533 text→CT). The from-scratch PointNet++ encoder is retained as a
+**documented negative result** (five approaches, all 1.0–1.5× random). See
+`docs/reports/P12_{EXIT_REPORT,MODEL_CARD}.md` and `docs/architecture/AUP-005_*.md`.
+**Completed & merged:** P0–P12 (P12 #13 — CT-CLIP retrieval + explainable re-rank)
+**Next entry gate:** P13 — P12 approved & merged → Qdrant Index & Real Retrieval
 
 ---
 
@@ -128,10 +136,14 @@ Code must never be modified first and documented afterward for architecture-rela
 
 ### Retrieval
 
+> **Superseded in part by AUP-005** — see "Retrieval architecture — AMENDED" below.
+> The deployed image encoder is **CT-CLIP (CT-ViT)**, not PointNet++. The original
+> targets below are retained as the historical baseline specification.
+
 - Primary dataset: CT-RATE
 - External validation: BIMCV-R
-- Image encoder: PointNet++
-- Text encoder: BioClinicalBERT
+- Image encoder: ~~PointNet++~~ → **CT-CLIP CT-ViT** (AUP-005)
+- Text encoder: BioClinicalBERT (research track) / CT-CLIP text tower (deployed)
 - Embedding size: 512
 - CT representation: 32,768 `(x, y, z, density)` points
 - Losses:
@@ -152,14 +164,29 @@ CT-CLIP code and methodology may be studied, but incompatible CT image-encoder w
 - Backup cloud: Kaggle GPU
 - Local storage budget: 100–250 GB
 
-### Segmentation
+### Segmentation — **DROPPED (P16 removed, AUP-005, 2026-07-20)**
 
-- Required for the final Demo, but remains governed by an experimental feasibility gate
-- Dataset: ReXGroundingCT
-- Frozen trained PointNet++ retrieval encoder
-- BioClinicalBERT text encoder
-- Text-conditioned 3D segmentation head
-- Retrieval remains the higher priority if timing conflicts arise
+- **No longer required for the final Demo.** Dropped by user decision, consistent with
+  its `planned_experimental` status and the recorded rule that retrieval takes priority
+  when timing conflicts arise.
+- ReXGroundingCT is no longer an acquisition target.
+- Its stated design (frozen PointNet++ + text-conditioned 3D head) is moot regardless,
+  since PointNet++ is no longer the deployed encoder (see Retrieval below).
+- Consequences: no segmentation view (P14), no segmentation artifacts in history/export
+  (P15), no segmentation paths in integration (P19) or the freeze profile (P20).
+
+### Retrieval architecture — **AMENDED (AUP-005)**
+
+- **Deployed recall:** CT-CLIP (CT-ViT image tower + text tower), CC-BY-NC-SA,
+  local inference ~2.25 GB VRAM. Held-out **R@10 = 0.511** (90 CT-RATE `valid` volumes).
+- **Original contribution:** findings-grounded **explainable re-ranking** — reorders the
+  top-K by clinical-findings agreement and renders the shared findings as the reason
+  ("both show pleural effusion + cardiomegaly"). Best R@10 0.522 (CT→text) / 0.533 (text→CT).
+- **Superseded:** the PointNet++ point-cloud encoder (P9/P11/P12a-b) is reclassified as
+  **documented research** (honest negative result — five approaches plateaued at
+  1.0–1.5× random) and is **removed from the serving path**.
+- **Licence obligation:** CT-CLIP + CT-RATE are **CC-BY-NC-SA** → non-commercial only,
+  attribution required, derivatives share-alike (enforced in P17).
 
 ---
 
