@@ -42,12 +42,14 @@ app = FastAPI(title="3D Medical CLIP API", version=__version__, lifespan=lifespa
 from .controlplane.api import router as controlplane_router  # noqa: E402
 from .controlplane.ws import router as ws_router  # noqa: E402
 from .history.api import router as history_router  # noqa: E402
+from .retrieval.api import router as retrieval_router  # noqa: E402
 from .viewer.api import router as viewer_router  # noqa: E402
 
 app.include_router(history_router)
 app.include_router(controlplane_router)
 app.include_router(ws_router)
 app.include_router(viewer_router)
+app.include_router(retrieval_router)
 
 app.add_middleware(
     CORSMiddleware,
