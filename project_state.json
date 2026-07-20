@@ -9,7 +9,7 @@
   "current_phase": "P13",
   "current_phase_name": "Qdrant Index and Real Retrieval Integration",
   "current_subphase": null,
-  "phase_status": "in_progress",
+  "phase_status": "in_review",
   "approved_architecture_addenda": [
     "docs/architecture/AUP-001_ct_encoder_pretraining.md",
     "docs/architecture/AUP-002_ctfm_distillation.md",
@@ -273,6 +273,13 @@
       "rerank_math": "passing",
       "held_out_retrieval": "passing (CT-CLIP R@10 0.511 on leakage-free CT-RATE valid)",
       "rerank_improves_ordering": "passing (+0.011 CT->text, +0.022 text->CT R@10)"
+    },
+    "P13": {
+      "rerank_is_permutation": "passing",
+      "explanations_grounded": "passing",
+      "qdrant_upsert_search": "passing (compose lane)",
+      "api_contract_both_query_types": "passing",
+      "embedder_outage_returns_503": "passing"
     }
   },
   "architecture": {
