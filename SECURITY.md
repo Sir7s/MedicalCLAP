@@ -24,6 +24,48 @@ Hardening** (Architecture v2.4.5 SPEC-08).
 These are blocked by `.gitignore`, scanned in CI (gitleaks), and asserted by
 `tests/test_repo_structure.py`.
 
+---
+
+## Delivered posture (P17)
+
+### Supply chain
+- **Secret scanning** (gitleaks) on every push; **SAST** (bandit `-ll` over
+  `scripts` and `backend/app`); **dependency audit** (pip-audit) across
+  `requirements-dev.txt`, `backend/requirements.txt` and `ml/requirements.txt`.
+- Container images are pinned by **digest**, not tag.
+
+### Data handling
+- **No PHI is processed.** CT-RATE is de-identified public research data. The system
+  neither ingests nor stores identifiers.
+- **Model weights and datasets are never committed.** The CT-CLIP checkpoint
+  (~1.7 GB), embedding caches and training runs live outside the repository and are
+  git-ignored; CI asserts nothing sensitive is tracked.
+- **Exports are user-scoped.** History exports contain only the user's own saved
+  searches, and every exported file embeds the research-use disclaimer.
+- **CSV exports are injection-hardened** — cells beginning `=`, `+`, `-` or `@` are
+  escaped so spreadsheets treat radiology text as data, not formulas (P15).
+
+### Network exposure
+- All services bind to `127.0.0.1` (compose publishes loopback-only ports).
+- The CT-CLIP inference service listens on loopback and is reachable only by the
+  backend. It performs no authentication because it is not network-reachable —
+  **do not expose it on a public interface.**
+
+### Failure behaviour
+- If the inference service is unavailable the API returns **503**; it never returns
+  fabricated or silently degraded retrieval results.
+
+### Third-party licence compliance
+The deployed stack includes **CC-BY-NC-SA** components (CT-CLIP, CT-RATE), making the
+running system **non-commercial**, attribution-bearing and share-alike. See
+[THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
+
+## Known limitations (honest)
+- Authentication, CSRF and the bootstrap-nonce flow described above are **targets**,
+  not yet implemented: the app is a single-user local prototype and currently has no
+  auth layer. Do not deploy it on a shared or public host.
+- Not a medical device; no clinical validation.
+
 ## Reporting
 
 This is a personal portfolio project. If you discover a secret or PHI exposure
