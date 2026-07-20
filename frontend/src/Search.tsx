@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import type { Lang } from "./i18n";
 import { t } from "./i18n";
+import { saveSearch } from "./History";
 
 const API =
   (import.meta.env.VITE_BACKEND_URL as string | undefined) ?? "http://127.0.0.1:8000";
@@ -41,6 +42,8 @@ export default function Search({ lang }: { lang: Lang }) {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [status, setStatus] = useState<Status | null>(null);
+  const [workspaceId, setWorkspaceId] = useState<string | null>(null);
+  const [saveState, setSaveState] = useState<"idle" | "saving" | "saved" | "failed">("idle");
 
   const loadStatus = useCallback(async () => {
     try {
@@ -80,6 +83,27 @@ export default function Search({ lang }: { lang: Lang }) {
       setBusy(false);
     }
   }, [query, top, alpha]);
+
+  // Saving a search needs a workspace; create one lazily on first save.
+  const save = useCallback(async () => {
+    if (results.length === 0) return;
+    setSaveState("saving");
+    try {
+      let ws = workspaceId;
+      if (!ws) {
+        const r = await fetch(`${API}/api/workspaces`, { method: "POST" });
+        if (!r.ok) throw new Error(`HTTP ${r.status}`);
+        ws = (await r.json()).workspace_id as string;
+        setWorkspaceId(ws);
+      }
+      await saveSearch(ws, query.slice(0, 120) || "search", { query, alpha, results });
+      setSaveState("saved");
+      setTimeout(() => setSaveState("idle"), 2000);
+    } catch {
+      setSaveState("failed");
+      setTimeout(() => setSaveState("idle"), 2500);
+    }
+  }, [results, query, alpha, workspaceId]);
 
   const engineOk = status?.embedder_available ?? false;
 
@@ -134,9 +158,23 @@ export default function Search({ lang }: { lang: Lang }) {
           </div>
         </div>
 
-        <button className="primary" onClick={() => void runSearch()} disabled={busy || !query.trim()}>
-          {busy ? s.searching : s.search}
-        </button>
+        <div className="rowline">
+          <button
+            className="primary"
+            onClick={() => void runSearch()}
+            disabled={busy || !query.trim()}
+          >
+            {busy ? s.searching : s.search}
+          </button>
+          <button
+            className="tab"
+            onClick={() => void save()}
+            disabled={results.length === 0 || saveState === "saving"}
+            title={s.save}
+          >
+            {saveState === "saved" ? s.saved : saveState === "failed" ? s.saveFailed : s.save}
+          </button>
+        </div>
 
         {!engineOk && status && (
           <p className="error" style={{ marginTop: "0.8rem" }}>
