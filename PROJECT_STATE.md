@@ -163,14 +163,29 @@ CT-CLIP code and methodology may be studied, but incompatible CT image-encoder w
 - Backup cloud: Kaggle GPU
 - Local storage budget: 100–250 GB
 
-### Segmentation
+### Segmentation — **DROPPED (P16 removed, AUP-005, 2026-07-20)**
 
-- Required for the final Demo, but remains governed by an experimental feasibility gate
-- Dataset: ReXGroundingCT
-- Frozen trained PointNet++ retrieval encoder
-- BioClinicalBERT text encoder
-- Text-conditioned 3D segmentation head
-- Retrieval remains the higher priority if timing conflicts arise
+- **No longer required for the final Demo.** Dropped by user decision, consistent with
+  its `planned_experimental` status and the recorded rule that retrieval takes priority
+  when timing conflicts arise.
+- ReXGroundingCT is no longer an acquisition target.
+- Its stated design (frozen PointNet++ + text-conditioned 3D head) is moot regardless,
+  since PointNet++ is no longer the deployed encoder (see Retrieval below).
+- Consequences: no segmentation view (P14), no segmentation artifacts in history/export
+  (P15), no segmentation paths in integration (P19) or the freeze profile (P20).
+
+### Retrieval architecture — **AMENDED (AUP-005)**
+
+- **Deployed recall:** CT-CLIP (CT-ViT image tower + text tower), CC-BY-NC-SA,
+  local inference ~2.25 GB VRAM. Held-out **R@10 = 0.511** (90 CT-RATE `valid` volumes).
+- **Original contribution:** findings-grounded **explainable re-ranking** — reorders the
+  top-K by clinical-findings agreement and renders the shared findings as the reason
+  ("both show pleural effusion + cardiomegaly"). Best R@10 0.522 (CT→text) / 0.533 (text→CT).
+- **Superseded:** the PointNet++ point-cloud encoder (P9/P11/P12a-b) is reclassified as
+  **documented research** (honest negative result — five approaches plateaued at
+  1.0–1.5× random) and is **removed from the serving path**.
+- **Licence obligation:** CT-CLIP + CT-RATE are **CC-BY-NC-SA** → non-commercial only,
+  attribution required, derivatives share-alike (enforced in P17).
 
 ---
 

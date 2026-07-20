@@ -13,7 +13,8 @@
   "approved_architecture_addenda": [
     "docs/architecture/AUP-001_ct_encoder_pretraining.md",
     "docs/architecture/AUP-002_ctfm_distillation.md",
-    "docs/architecture/AUP-004_findings_reranking.md"
+    "docs/architecture/AUP-004_findings_reranking.md",
+    "docs/architecture/AUP-005_architecture_pivot_and_scope.md"
   ],
   "completed_phases": [
     "P0",
@@ -144,7 +145,18 @@
       "result": "approved_and_merged"
     }
   ],
-  "next_entry_gate": "P13 entry: P12 approved and merged -> Qdrant Index & Real Retrieval Integration.",
+  "next_entry_gate": "P13 entry: P12 approved and merged -> Qdrant Index & Real Retrieval Integration (AUP-005 scope: index CT-CLIP embeddings, findings re-rank + explanations in the API, and a REAL GPU worker running CT-CLIP inference replacing the P4 mock).",
+  "remaining_phases": {
+    "amended_by": "docs/architecture/AUP-005_architecture_pivot_and_scope.md",
+    "P13": "Qdrant Index & Real Retrieval Integration (CT-CLIP embeddings + re-rank/explanations + real GPU worker)",
+    "P14": "Professional Frontend Design & Core UI (3 design directions -> user selects; bilingual/voice query, viewer, explained results; no segmentation view) [USER GATE]",
+    "P15": "Full History, Export & User Workflow (minus segmentation artifacts)",
+    "P16": "DROPPED (segmentation) - see AUP-005",
+    "P17": "Security, Privacy & Public Repository Hardening (+ CC-BY-NC-SA attribution / share-alike / non-commercial notice)",
+    "P18": "Backup, Restore & Failure Recovery (incl. 1.7 GB CT-CLIP checkpoint as un-committed restorable artifact)",
+    "P19": "Full Integration, Performance & Regression (incl. CT-CLIP latency + ~2.5 GB VRAM in the serving path)",
+    "P20": "Freeze Run, Documentation & Public Release (against the AUP-005-amended Freeze Test Profile)"
+  },
   "active_branch": "phase/P12-training",
   "open_pull_request": "https://github.com/Sir7s/MedicalCLAP/pull/13",
   "p12_status_note": "Training pipeline delivered and validated on real GPU (RTX 4050). Local from-scratch runs are data-limited (held-out at random) because the PointNet++ CT encoder cold-starts. Architecture Update AUP-001 (APPROVED) adds stage P12a: supervised pretraining of the CT encoder on the 18-dim CT-RATE labels (train-split only), then retrieval fine-tune initialized from those weights. Local-first; the cloud notebook (PR #13) remains the scale/Option-4 lever. P12 finalized once the P12a->retrieval run's real held-out metrics are recorded in docs/reports/P12_MODEL_CARD.md against the AUP-001 §6 decision gate.",
@@ -365,13 +377,21 @@
     "ct_clip_policy": "May reference CT-CLIP data processing, training strategy and evaluation methods, but must not load incompatible CT image encoder weights into PointNet++."
   },
   "segmentation": {
-    "required_for_final_demo": true,
-    "status": "planned_experimental",
-    "dataset": "ReXGroundingCT",
-    "architecture": "Frozen PointNet++ retrieval encoder + BioClinicalBERT text encoder + text-conditioned 3D segmentation head",
-    "encoder_training_policy": "Freeze the trained retrieval encoder initially and train only the segmentation head",
-    "gate_required": true,
-    "retrieval_has_priority_if_time_conflicts": true
+    "required_for_final_demo": false,
+    "status": "dropped",
+    "dropped_by": "docs/architecture/AUP-005_architecture_pivot_and_scope.md",
+    "dropped_on": "2026-07-20",
+    "rationale": "User decision; consistent with planned_experimental status and the recorded rule that retrieval has priority if time conflicts. Its stated architecture (frozen PointNet++ + text-conditioned head) is moot since PointNet++ is no longer the deployed encoder.",
+    "dataset": "ReXGroundingCT (no longer an acquisition target)",
+    "phase": "P16 removed from the plan"
+  },
+  "retrieval_architecture": {
+    "status": "amended by AUP-005 (2026-07-20)",
+    "deployed_recall": "CT-CLIP (CT-ViT image tower + text tower), CC-BY-NC-SA, local inference ~2.25 GB VRAM",
+    "original_contribution": "findings-grounded explainable re-ranking layer (reorders top-K by clinical-findings agreement; renders shared findings as the reason)",
+    "held_out_metrics": "CT-CLIP recall R@10 0.511 (90 held-out CT-RATE valid volumes); + re-rank best R@10 0.522 (CT->text) / 0.533 (text->CT)",
+    "superseded_encoder": "PointNet++ point-cloud encoder (P9/P11/P12a-b) reclassified as documented research; removed from the serving path after five approaches plateaued at 1.0-1.5x random",
+    "licence_obligation": "CT-CLIP + CT-RATE are CC-BY-NC-SA: non-commercial only, attribution required, derivatives share-alike (enforced in P17)"
   },
   "frontend": {
     "quality_target": "Near-product professional interface",
