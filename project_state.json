@@ -6,9 +6,9 @@
   "last_updated": "2026-07-12",
   "architecture_version": "2.4.5",
   "master_plan_version": "1.0",
-  "current_phase": "P12",
-  "current_phase_name": "Retrieval Training and Model Selection",
-  "current_subphase": "P12d",
+  "current_phase": "P13",
+  "current_phase_name": "Qdrant Index and Real Retrieval Integration",
+  "current_subphase": null,
   "phase_status": "in_progress",
   "approved_architecture_addenda": [
     "docs/architecture/AUP-001_ct_encoder_pretraining.md",
@@ -28,7 +28,8 @@
     "P8",
     "P9",
     "P10",
-    "P11"
+    "P11",
+    "P12"
   ],
   "approved_phases": [
     "P0",
@@ -42,9 +43,10 @@
     "P8",
     "P9",
     "P10",
-    "P11"
+    "P11",
+    "P12"
   ],
-  "last_approved_exit_report": "docs/reports/P11_EXIT_REPORT.md",
+  "last_approved_exit_report": "docs/reports/P12_EXIT_REPORT.md",
   "phase_history": [
     {
       "phase": "P0",
@@ -143,6 +145,14 @@
       "merge_commit": "9dd65f8",
       "merged_at": "2026-07-12",
       "result": "approved_and_merged"
+    },
+    {
+      "phase": "P12",
+      "name": "Retrieval Training and Model Selection",
+      "pull_request": "https://github.com/Sir7s/MedicalCLAP/pull/13",
+      "merged_at": "2026-07-21",
+      "result": "approved_and_merged",
+      "note": "Deployable retriever via AUP-005 pivot: CT-CLIP recall (held-out R@10 0.511) + findings-grounded explainable re-rank (0.522/0.533). From-scratch PointNet++ retained as documented negative result."
     }
   ],
   "next_entry_gate": "P13 entry: P12 approved and merged -> Qdrant Index & Real Retrieval Integration (AUP-005 scope: index CT-CLIP embeddings, findings re-rank + explanations in the API, and a REAL GPU worker running CT-CLIP inference replacing the P4 mock).",
@@ -157,9 +167,8 @@
     "P19": "Full Integration, Performance & Regression (incl. CT-CLIP latency + ~2.5 GB VRAM in the serving path)",
     "P20": "Freeze Run, Documentation & Public Release (against the AUP-005-amended Freeze Test Profile)"
   },
-  "active_branch": "phase/P12-training",
-  "open_pull_request": "https://github.com/Sir7s/MedicalCLAP/pull/13",
-  "p12_status_note": "Training pipeline delivered and validated on real GPU (RTX 4050). Local from-scratch runs are data-limited (held-out at random) because the PointNet++ CT encoder cold-starts. Architecture Update AUP-001 (APPROVED) adds stage P12a: supervised pretraining of the CT encoder on the 18-dim CT-RATE labels (train-split only), then retrieval fine-tune initialized from those weights. Local-first; the cloud notebook (PR #13) remains the scale/Option-4 lever. P12 finalized once the P12a->retrieval run's real held-out metrics are recorded in docs/reports/P12_MODEL_CARD.md against the AUP-001 §6 decision gate.",
+  "active_branch": "phase/P13-retrieval-integration",
+  "open_pull_request": null,
   "critical_tests": {
     "P0": {
       "test_doc_integrity": "passing",
@@ -261,15 +270,14 @@
       "train_loop_smoke": "passing",
       "resumable_checkpoint": "passing",
       "real_gpu_training": "passing (RTX 4050, torch 2.11.0+cu128)",
-      "held_out_from_scratch": "at/below random (R@10 0.051; see P12_MODEL_CARD)",
-      "p12a_pretrain_smoke": "passing",
-      "held_out_p12a_pretrained": "above random (CT->text R@10 0.127 vs 0.051 scratch; modest, best local model)",
-      "cloud_checkpoint_and_metrics": "available lever (train_ctrate_colab.ipynb); not yet run"
+      "rerank_math": "passing",
+      "held_out_retrieval": "passing (CT-CLIP R@10 0.511 on leakage-free CT-RATE valid)",
+      "rerank_improves_ordering": "passing (+0.011 CT->text, +0.022 text->CT R@10)"
     }
   },
   "architecture": {
     "bundle_version": "2.4.5",
-    "document": "Architecture Specification Bundle v2.4.5 — Clean Consolidated Edition",
+    "document": "Architecture Specification Bundle v2.4.5 \u2014 Clean Consolidated Edition",
     "status": "final_freeze_candidate",
     "frozen": false,
     "upgrade_required": false,
@@ -298,7 +306,7 @@
     "timeline_target": "1 month for a showcase-ready version",
     "weekly_commitment": "25+ hours",
     "priority_order": [
-      "Complete and reliable CT↔Report retrieval",
+      "Complete and reliable CT\u2194Report retrieval",
       "Professional product-quality frontend",
       "History, export, voice and bilingual UX",
       "Text-guided 3D segmentation if feasible, without sacrificing retrieval"
@@ -347,7 +355,7 @@
     "external_validation_dataset": "BIMCV-R",
     "segmentation_dataset": "ReXGroundingCT",
     "future_region_semantics_dataset": "RadGenome-Chest CT",
-    "local_storage_budget": "100–250 GB",
+    "local_storage_budget": "100\u2013250 GB",
     "download_strategy": "Prepare the full CT-RATE dataset where practical, but train initially on subsets.",
     "privacy_rule": "Use public, de-identified data only."
   },

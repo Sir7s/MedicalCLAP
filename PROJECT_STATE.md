@@ -1,25 +1,22 @@
 # 3D Medical CLIP — PROJECT STATE
 
 **State version:** 1.0  
-**Last updated:** 2026-07-01  
+**Last updated:** 2026-07-21  
 **Repository:** Sir7s/MedicalCLAP  
 **Architecture version:** 2.4.5 (`final_freeze_candidate`) · **Master Plan:** v1.0  
-**Current phase:** P12 — Retrieval Training and Model Selection
-**Active branch:** `phase/P12-training`  
-**Current subphase:** P12b — CT-FM feature distillation (AUP-002, approved)  
-**Phase status:** In progress — pipeline validated on real GPU (RTX 4050). From-scratch
-local runs are data-limited (held-out at random) because the PointNet++ CT encoder
-cold-starts. **Architecture Update AUP-001 (approved)** adds stage **P12a**: pretrain
-the CT encoder on the 18-dim CT-RATE labels (train-split only), then fine-tune retrieval
-from those weights — P12a lifted held-out CT→text R@10 0.051→0.127 (first above-random
-model). **AUP-002 (approved)** adds **P12b**: distill the MIT-licensed CT-FM foundation
-model's features into PointNet++ (teacher features cached offline; its weights never
-loaded — CT-CLIP policy honored), then fine-tune retrieval. Local-first; the cloud
-notebook (`ml/notebooks/train_ctrate_colab.ipynb`, PR #13) remains the scale lever. See
-`docs/architecture/AUP-001_*.md` and `AUP-002_ctfm_distillation.md`. P12 is finalized only
-after the best pretrain→retrieval run's real metrics are recorded in
-`docs/reports/P12_MODEL_CARD.md`.
-**Completed & merged:** P0–P11 (P11 #12 `9dd65f8`)
+**Current phase:** P13 — Qdrant Index and Real Retrieval Integration
+**Active branch:** `phase/P13-retrieval-integration`  
+**Current subphase:** —  
+**Phase status:** In progress — indexing CT-CLIP embeddings in Qdrant, exposing search
+(text/CT query) with findings re-ranking + explanations, and replacing the P4 **mock**
+GPU worker with a real CT-CLIP inference worker (AUP-005 scope).
+
+**P12 closed:** a deployable retriever was achieved via the **AUP-005 pivot** — CT-CLIP
+recall (held-out **R@10 0.511**) + our findings-grounded explainable re-ranking
+(0.522 CT→text / 0.533 text→CT). The from-scratch PointNet++ encoder is retained as a
+**documented negative result** (five approaches, all 1.0–1.5× random). See
+`docs/reports/P12_{EXIT_REPORT,MODEL_CARD}.md` and `docs/architecture/AUP-005_*.md`.
+**Completed & merged:** P0–P12 (P12 #13 — CT-CLIP retrieval + explainable re-rank)
 **Next entry gate:** P13 — P12 approved & merged → Qdrant Index & Real Retrieval
 
 ---
@@ -139,10 +136,14 @@ Code must never be modified first and documented afterward for architecture-rela
 
 ### Retrieval
 
+> **Superseded in part by AUP-005** — see "Retrieval architecture — AMENDED" below.
+> The deployed image encoder is **CT-CLIP (CT-ViT)**, not PointNet++. The original
+> targets below are retained as the historical baseline specification.
+
 - Primary dataset: CT-RATE
 - External validation: BIMCV-R
-- Image encoder: PointNet++
-- Text encoder: BioClinicalBERT
+- Image encoder: ~~PointNet++~~ → **CT-CLIP CT-ViT** (AUP-005)
+- Text encoder: BioClinicalBERT (research track) / CT-CLIP text tower (deployed)
 - Embedding size: 512
 - CT representation: 32,768 `(x, y, z, density)` points
 - Losses:

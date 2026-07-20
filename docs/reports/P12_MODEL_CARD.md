@@ -48,12 +48,47 @@ not yet a strong/deployable retriever. Remaining gap is now data-scale-bound, wh
 justifies escalating to Option 4 (distill a CT foundation) and/or larger-scale
 (cloud) training — both compound with P12a pretraining.
 
-## Cloud training (the usable model) — `ml/notebooks/train_ctrate_colab.ipynb`
-Trains the identical pipeline on a larger CT-RATE subset (`TARGET_VOLUMES`,
-default 3000, scalable toward the full train set) at 32 768 points. Persistent
-Google-Drive point-cloud cache + resumable checkpoints make it robust to Colab
-session limits. See `docs/CLOUD_TRAINING.md`. **The cloud-trained checkpoint and
-its real held-out metrics are pending the user's run and will be recorded here.**
+**Phase 3 — data scaling did NOT rescue it.** Streaming 3,003 volumes (2,112 train)
+and retraining changed nothing: held-out stayed at the random floor, and a properly
+tuned run (unfrozen BERT, cosine schedule, 1024-negative queue, augmentation) was
+still flat at random after 36 epochs. A CT-FM foundation baseline — the teacher's
+*own* frozen features used for retrieval — reached only **R@10 0.153**, barely above
+our point-cloud model. Five distinct approaches all plateaued at **1.0–1.5× random**.
+
+---
+
+# DEPLOYED MODEL (AUP-005): CT-CLIP recall + findings-grounded re-ranking
+
+The from-scratch encoder is **not** the deployed model. It is documented research
+(above). The shipped system is:
+
+**Stage 1 — recall:** CT-CLIP (CT-ViT image tower + text tower, CC-BY-NC-SA),
+running locally on the RTX 4050 at **2.25 GB inference VRAM**.
+**Stage 2 — re-rank:** our findings-grounded layer reorders the top-K by clinical
+findings agreement. **Stage 3 — explain:** shared findings are rendered as the reason.
+
+## Held-out results (90 CT-RATE `valid` volumes — CT-CLIP did NOT train on valid)
+
+| Direction | System | R@1 | R@5 | **R@10** | mAP | nDCG |
+|---|---|---|---|---|---|---|
+| CT→text | CT-CLIP recall | 0.078 | 0.378 | **0.511** | 0.231 | 0.390 |
+| CT→text | + findings re-rank (α=0.9) | 0.078 | 0.389 | **0.522** | 0.226 | 0.386 |
+| text→CT | CT-CLIP recall | 0.111 | 0.367 | **0.511** | 0.249 | 0.403 |
+| text→CT | + findings re-rank (α=0.6) | 0.089 | 0.344 | **0.533** | 0.231 | 0.390 |
+
+Random baseline at this pool size ≈ R@10 0.11. **CT-CLIP is ~4× our best local
+model (0.127) and ~4.6× random** — a genuinely working retriever.
+
+**Re-ranker, honestly:** it adds **+0.011 (CT→text)** and **+0.022 (text→CT)** R@10
+when weighted lightly, and **degrades results if weighted heavily** (R@10 falls to
+0.40 at α=0.5). On a base this strong there is little room to reorder, and the
+findings signal is both imperfect and correlated with CT-CLIP's own embedding.
+**Its real value is interpretability** — every hit carries a clinical reason — plus
+a small precision gain. It cannot reduce recall within the pool (it only reorders).
+
+**Eval caveat:** 90 volumes, not the full valid split — 160 high-resolution (1024²)
+volumes were skipped because the host machine could not allocate ~1 GB arrays
+(C: full → exhausted pagefile). The eval is therefore biased toward 512² scans.
 
 ## Reproducibility
 - Config in `ml/models/train_config.py`; per-run manifest in the run's `metrics.json`.
@@ -61,8 +96,15 @@ its real held-out metrics are pending the user's run and will be recorded here.*
 - Weights are **not** committed to git (H-14); they load into the running app.
 
 ## Limitations
-- The best local checkpoint (P12a-pretrained) is **above random but still weak**
-  (R@10 ≈ 0.127) — usable to wire end-to-end retrieval (P13), not yet a strong
-  retriever. Stronger quality needs Option 4 and/or larger-scale training.
-- CT-RATE reports are semi-templated; Recall@1 is a harsh single-match metric —
-  R@10 / mAP / nDCG are more informative here.
+- **The from-scratch point-cloud encoder does not work** at locally achievable data
+  scale (1.0–1.5× random across five approaches). It ships as documented research,
+  not as the model. Root cause is data scale, not a defect.
+- **CT-RATE reports are semi-templated** (~51% of reports are duplicated across
+  volumes), so exact-match Recall@1 is a harsh, partly ill-posed target;
+  R@10 / mAP / nDCG are more informative.
+- **The re-ranker's metric gain is small** on a strong base (+0.01–0.02 R@10) and
+  is harmful if over-weighted; it is justified primarily by interpretability.
+- **Licensing:** CT-CLIP and CT-RATE are **CC-BY-NC-SA** — this system is
+  **non-commercial**, requires attribution, and derivatives must share alike.
+- **Not a diagnostic device.** Retrieval surfaces similar prior cases; it does not
+  generate reports and must not be used for clinical decision-making.

@@ -16,6 +16,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import math
 import time
 from pathlib import Path
 
@@ -93,10 +94,32 @@ def train_aug(config: TrainConfig, out_dir: Path, *, init_ct_encoder: Path | Non
     if init_ct_encoder is not None:
         model.ct_encoder.load_state_dict(torch.load(init_ct_encoder, map_location=device))
         print(f"[init] CT encoder from {init_ct_encoder}", flush=True)
-    trainable = [p for p in model.parameters() if p.requires_grad]
-    opt = torch.optim.AdamW(trainable, lr=config.lr, weight_decay=config.weight_decay)
+    # Discriminative LR: pretrained BERT at a low LR, from-scratch CT/proj at full LR.
+    bert_params: list = []
+    other_params: list = []
+    for name, p in model.named_parameters():
+        if not p.requires_grad:
+            continue
+        (bert_params if name.startswith("text_encoder.bert") else other_params).append(p)
+    groups = [{"params": other_params, "lr": config.lr}]
+    if bert_params:
+        groups.append({"params": bert_params, "lr": config.lr * 0.1})
+    opt = torch.optim.AdamW(groups, weight_decay=config.weight_decay)
+    print(f"trainable: CT/proj={sum(p.numel() for p in other_params):,} "
+          f"BERT={sum(p.numel() for p in bert_params):,}", flush=True)
     use_amp = config.amp and device == "cuda"
     scaler = torch.amp.GradScaler("cuda", enabled=use_amp)
+    # Cosine LR schedule with linear warmup (per optimizer step).
+    steps_per_epoch = max(1, len(loaders["train"]))
+    total_steps = config.epochs * steps_per_epoch
+    warmup = max(1, int(0.05 * total_steps))
+
+    def lr_scale(step: int) -> float:
+        if step < warmup:
+            return step / warmup
+        prog = (step - warmup) / max(1, total_steps - warmup)
+        return 0.5 * (1.0 + math.cos(math.pi * prog))
+    sched = torch.optim.lr_scheduler.LambdaLR(opt, lr_scale)
     txt_q = EmbQueue(queue_size, config.embed_dim, config.n_labels, device)
     ct_q = EmbQueue(queue_size, config.embed_dim, config.n_labels, device)
 
@@ -128,6 +151,7 @@ def train_aug(config: TrainConfig, out_dir: Path, *, init_ct_encoder: Path | Non
             torch.nn.utils.clip_grad_norm_(model.parameters(), config.grad_clip)
             scaler.step(opt)
             scaler.update()
+            sched.step()
             txt_q.add(txt, batch.labels)
             ct_q.add(ct, batch.labels)
             losses.append(float(loss.detach()))
@@ -164,14 +188,25 @@ def main() -> None:
     ap.add_argument("--out", type=str, default=str(RUN_DIR))
     ap.add_argument("--init-ct-encoder", type=str, default="runs/p12a/encoder.pt")
     ap.add_argument("--epochs", type=int, default=60)
+    ap.add_argument("--n-train", type=int, default=556)
+    ap.add_argument("--n-val", type=int, default=127)
+    ap.add_argument("--n-test", type=int, default=118)
     ap.add_argument("--batch", type=int, default=None)
+    ap.add_argument("--lr", type=float, default=None)
     ap.add_argument("--queue", type=int, default=512)
     ap.add_argument("--beta", type=float, default=0.3)
+    ap.add_argument("--unfreeze-text", action="store_true",
+                    help="fine-tune BERT too (discriminative LR); needs more data")
     ap.add_argument("--allow-cpu", action="store_true")
     args = ap.parse_args()
-    overrides = {"n_train": 556, "n_val": 127, "n_test": 118, "epochs": args.epochs}
+    overrides = {"n_train": args.n_train, "n_val": args.n_val, "n_test": args.n_test,
+                 "epochs": args.epochs}
     if args.batch is not None:
         overrides["batch_size"] = args.batch
+    if args.lr is not None:
+        overrides["lr"] = args.lr
+    if args.unfreeze_text:
+        overrides["freeze_text_backbone"] = False
     config = TrainConfig(**{**DEFAULT.to_dict(), **overrides})
     init = Path(args.init_ct_encoder) if args.init_ct_encoder else None
     train_aug(config, Path(args.out), init_ct_encoder=init, queue_size=args.queue,

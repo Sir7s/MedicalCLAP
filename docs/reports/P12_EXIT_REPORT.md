@@ -1,84 +1,81 @@
 # Phase Exit Report — P12 · Retrieval Training & Model Selection
 
-> **Status: PIPELINE DELIVERED — cloud checkpoint PENDING (do not merge until real
-> cloud metrics are recorded).** User decision: train on cloud (Colab/Kaggle).
+> **Status: COMPLETE — deployable retriever achieved via AUP-005 pivot.**
 
 | Field | Value |
 |---|---|
-| Phase ID | P12 · report v1.0 |
-| Branch | `phase/P12-training` |
-| Date | 2026-07-12 |
+| Phase ID | P12 · report v2.0 |
+| Branch | `phase/P12-training` (PR #13) |
+| Date | 2026-07-21 |
 | Prerequisite | P11 merged |
+| Addenda | AUP-001, AUP-002, AUP-004, AUP-005 (all approved) |
 
-## 1. Objective
-Train the P11 retrieval model on real CT-RATE data, select the best checkpoint by
-held-out validation, and report bidirectional Recall@K / mAP / nDCG. Produce a
-reproducible, resumable training system and a deployment-candidate checkpoint.
+## 1. Objective vs outcome
+**Objective:** train the retrieval model on real CT-RATE data, select a checkpoint by
+held-out validation, report bidirectional Recall@K/mAP/nDCG, and produce a deployment
+candidate.
+
+**Outcome:** achieved — but **not** with the originally mandated encoder. The
+from-scratch PointNet++ encoder could not clear the random baseline at any locally
+achievable data scale; a working retriever was obtained by adopting **CT-CLIP for
+recall** and adding an **original findings-grounded explainable re-ranking layer**
+(AUP-005). Held-out **R@10 = 0.511** (≈4.6× random, ≈4× the best local model).
 
 ## 2. Subphases
 | # | Subphase | Status |
 |---|---|---|
-| S1 | Frozen training config (reproducibility) | done |
-| S2 | Dataset: point-cloud cache + tokenized reports + 18-dim labels | done |
-| S3 | GPU training loop (AMP, best-val selection, held-out test, model card) | done |
-| S4 | Real GPU training + honest metrics (local) | done — data-limited (see §4) |
-| S5 | Resumable checkpointing + cloud (Colab/Kaggle) training notebook | done |
-| S6 | Cloud training run → real checkpoint + metrics | **PENDING (user runs)** |
+| S1 | Frozen training config | done |
+| S2 | Dataset (point-cloud cache + reports + labels) | done |
+| S3 | GPU training loop (AMP, selection, held-out test, model card) | done |
+| S4 | Real GPU training + honest metrics | done — at random (documented) |
+| S5 | P12a supervised CT-encoder pretraining (AUP-001) | done — first above-random (R@10 0.127) |
+| S6 | P12b CT-FM distillation (AUP-002) | done — no gain (0.144) |
+| S7 | Augmentation + negative queue + multi-positive | done — no gain on strong base |
+| S8 | Data scaling to 3,003 volumes (stream-and-cache) | done — no gain |
+| S9 | P12d findings classifier + explainable re-ranker (AUP-004) | done |
+| S10 | CT-CLIP integration + held-out evaluation (AUP-005) | done — **deployable** |
 
 ## 3. Deliverables
-- `ml/models/train_config.py` — frozen `TrainConfig` (data/opt/runtime), scalable via CLI.
-- `ml/models/data.py` — point-cloud cache (env-configurable roots for cloud),
-  report pairing, CT-RATE label loading, torch dataset + collate.
-- `ml/models/train.py` — AMP training loop, best-val checkpoint selection,
-  held-out test eval, auto model card, **resumable** (`--resume` from `last.pt`),
-  CLI scaling knobs (`--n-train/--points/--batch/--epochs/--no-freeze`), refuses
-  silent CPU fallback.
-- `ml/notebooks/train_ctrate_colab.ipynb` — end-to-end cloud training on a larger
-  CT-RATE subset, reusing the exact validated code. `docs/CLOUD_TRAINING.md`.
-- `tests/ml/test_train.py` — full-loop smoke + resume tests (torch; auto-skip in CI).
-- `docs/reports/P12_MODEL_CARD.md` — committed model card (local baseline + cloud path).
+- **Training system:** `ml/models/{train_config,data,train,pretrain,distill,train_aug}.py`
+  — AMP, resumable, best-val selection, auto model card, CLI scaling knobs.
+- **Data scaling:** `ml/models/scale_acquire.py` — stream-and-cache (download →
+  preprocess → delete raw; ~150 KB/volume survives), concurrent + resumable.
+- **Deployed retrieval:** CT-CLIP recall + `ml/models/rerank.py` (findings-grounded
+  re-rank + explanations) + `ml/models/findings.py` (18-abnormality classifier).
+- **Diagnostics:** `ml/models/ctfm_baseline.py` (foundation baseline = the bar to beat).
+- **Cloud path:** `ml/notebooks/train_ctrate_colab.ipynb` + `docs/CLOUD_TRAINING.md`.
+- **Model card:** `docs/reports/P12_MODEL_CARD.md` (all numbers, honest).
 
-## 4. Local training evidence (real GPU, HONEST — data-limited)
-RTX 4050 Laptop (6 GB), torch 2.11.0+cu128, CUDA 12.8. Three runs:
+## 4. Exit-gate evidence
+- **Real GPU training on real data** — RTX 4050, torch 2.11.0+cu128, verified.
+- **Held-out, leakage-free evaluation** — CT-RATE `valid` split (CT-CLIP did not
+  train on it); 90 volumes.
+- **Deployment candidate** — CT-CLIP recall R@10 **0.511**; + re-rank **0.522**
+  (CT→text) / **0.533** (text→CT). Bidirectional, with mAP and nDCG reported.
+- **Model selection** — per-epoch validation selection throughout; α swept for the
+  re-ranker with the degradation region documented.
+- **Reproducible** — seeded configs, per-run manifests, deterministic preprocessing.
 
-| Run | Train vols | Params trained | Train R@5 | Test R@1 | Test R@10 |
-|-----|-----------|----------------|-----------|----------|-----------|
-| Full fine-tune | 160 | 108.9 M | 0.98 | 0.025 | — |
-| Frozen backbone | 160 | 589 K | ~0.98 | 0.025 | 0.125 |
-| Frozen backbone | 556 (full local) | 589 K | high | 0.017 | 0.051 |
+## 5. Honest negative result (retained, not hidden)
+Five approaches to the mandated from-scratch encoder — baseline, label-pretraining,
+CT-FM distillation, augmentation+queue, and 4× data scaling — all plateaued at
+**1.0–1.5× random**. A CT-FM frozen-feature baseline reached only 0.153, showing the
+limit was not our representation alone but data scale (CT-CLIP: ~25k volumes;
+MedP-CLIP: 6.4M images). This is documented in the model card and AUP-005.
 
-- **Pipeline validated:** the model demonstrably learns (memorizes train,
-  R@5 ≈ 0.98); eval path proven correct (train-set retrieval strong in eval mode —
-  no BatchNorm/eval bug); AMP + checkpointing + selection all work.
-- **Held-out at random:** across the full local data budget the model does not
-  generalize (test at/below the random baseline; best val epoch = 1). **Not a bug —
-  a data-scale limit.** The PointNet++ CT encoder trains from scratch and 556
-  volumes ≈ 2 % of CT-CLIP's ~25 k. Matches the spec (local = validate subsets;
-  real training = Colab/Kaggle).
-
-## 5. Exit-gate status (Master Plan P12)
-- Training/selection/metrics **pipeline**: MET (real GPU, reproducible, resumable).
-- **Generalizing checkpoint + real held-out metrics**: **NOT YET MET** — requires
-  the cloud run. This report is **not** a completion claim; P12 is finalized once
-  the cloud `metrics.json` is recorded and (if it clears the retrieval bar) merged.
-
-## 6. Decision log
-Local training conclusively data-limited (3 runs). Presented to user as a
-resource fork (accept-local vs cloud vs keep-local). **User chose: run cloud
-training now** — deliver the notebook, user runs it, returns the checkpoint
-before we proceed to P13.
+## 6. Architecture deviation
+**Yes — formalized in AUP-005.** Deployed encoder is CT-CLIP, not PointNet++. The
+point-cloud pipeline is reclassified as documented research and removed from the
+serving path. P16 (segmentation) dropped in the same amendment. The Freeze Test
+Profile must be restated before P20 (AUP-005 §5).
 
 ## 7. Tests / CI
-`tests/ml/test_train.py` (smoke + resume) join the P11 torch tests: verified
-locally, auto-skip in CI where torch is absent (consistent with P10/P11). numpy
-metric tests still run in CI. ruff + mypy clean. No new CI-audited dependencies.
+`tests/ml/`: metrics, model forward/overfit/checkpoint (P11), training smoke +
+resume, pretraining smoke, distillation smoke, re-rank math (CI-safe numpy).
+Heavy torch tests auto-skip in CI and are verified locally. ruff + mypy clean.
 
-## 8. Architecture deviation
-none — encoders, 512-d embeddings, bidirectional CLIP + multi-label aux, and the
-metric set are unchanged from SPEC-07. Freezing the text backbone is a training
-strategy (regularization), not an architecture change; the spec already uses
-encoder-freezing for the segmentation head.
-
-## 9. Governance
-No weights/PHI committed (H-13/H-14): `runs/` git-ignored; checkpoints load into
-the app. `PROJECT_STATE.*` updated. **Hold merge** until cloud metrics are in.
+## 8. Governance
+No weights/PHI committed (H-13/H-14) — `runs/` git-ignored; CT-CLIP checkpoint and
+caches live outside the repo. New obligation: **CC-BY-NC-SA** (non-commercial,
+attribution, share-alike) enforced in P17. `PROJECT_STATE.*` updated.
+Unlocks **P13** — Qdrant Index & Real Retrieval Integration.
