@@ -77,8 +77,9 @@ tests/        governance + smoke tests
 
 No restricted datasets, model weights, PHI, or secrets are committed to this
 public repository (enforced by `.gitignore` and `tests/test_repo_structure.py`).
-CT-RATE, ReXGroundingCT, and BIMCV-R are obtained separately under their own
-licenses.
+CT-RATE and any other datasets are obtained separately under their own licenses.
+CT-RATE is de-identified public research data; the application is single-user and
+local-first, and all services bind to `127.0.0.1`. See [SECURITY.md](SECURITY.md).
 
 ## Development
 
@@ -91,4 +92,18 @@ bash scripts/ci_local.sh
 
 ## License
 
-[MIT](LICENSE) © 2026 Sir7s (Max Qiu)
+The **source code in this repository** is [MIT](LICENSE) © 2026 Sir7s (Max Qiu).
+
+> ### ⚠️ The deployed system is non-commercial
+> The retrieval stack depends on **CT-CLIP** and **CT-RATE**, both licensed
+> **CC-BY-NC-SA 4.0**. Running this system with those components is therefore
+> **non-commercial only**, requires **attribution**, and obliges derivatives to be
+> shared under compatible terms.
+>
+> The MIT licence covers *our code only* — it cannot and does not grant commercial
+> rights over third-party models or data. For commercial use you must obtain
+> permission from the upstream owners or substitute those components.
+
+Full attribution and per-component licences: **[THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md)**.
+No third-party weights or datasets are redistributed here; they are downloaded by
+the user at setup time.
