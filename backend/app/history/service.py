@@ -195,7 +195,10 @@ def save_lightweight_history(
 
     with SessionLocal() as s, s.begin():
         rec = HistoryRecord(workspace_id=workspace_id, profile="lightweight",
-                            state="preparing", title=title, meta={"kind": "lightweight"})
+                            state="preparing", title=title,
+                            # P15: keep the payload on the record so list/get/export are
+                            # self-describing; the chunked artifact remains the durable copy.
+                            meta={"kind": "lightweight", "payload": payload})
         s.add(rec)
         s.flush()
         op = HistorySaveOperation(history_record_id=rec.id, workspace_id=workspace_id)

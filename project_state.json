@@ -6,8 +6,8 @@
   "last_updated": "2026-07-12",
   "architecture_version": "2.4.5",
   "master_plan_version": "1.0",
-  "current_phase": "P14",
-  "current_phase_name": "Professional Frontend Design and Core UI",
+  "current_phase": "P15",
+  "current_phase_name": "Full History, Export and User Workflow",
   "current_subphase": null,
   "phase_status": "in_review",
   "approved_architecture_addenda": [
@@ -30,7 +30,8 @@
     "P10",
     "P11",
     "P12",
-    "P13"
+    "P13",
+    "P14"
   ],
   "approved_phases": [
     "P0",
@@ -46,9 +47,10 @@
     "P10",
     "P11",
     "P12",
-    "P13"
+    "P13",
+    "P14"
   ],
-  "last_approved_exit_report": "docs/reports/P13_EXIT_REPORT.md",
+  "last_approved_exit_report": "docs/reports/P14_EXIT_REPORT.md",
   "phase_history": [
     {
       "phase": "P0",
@@ -163,9 +165,17 @@
       "merged_at": "2026-07-21",
       "result": "approved_and_merged",
       "note": "CT-CLIP embeddings in Qdrant + findings-grounded explainable re-rank API + real CT-CLIP GPU worker replacing the P4 mock."
+    },
+    {
+      "phase": "P14",
+      "name": "Professional Frontend Design and Core UI",
+      "pull_request": "https://github.com/Sir7s/MedicalCLAP/pull/16",
+      "merged_at": "2026-07-21",
+      "result": "approved_and_merged",
+      "note": "Clinical Workstation UI (design gate delegated to AI): bilingual search with findings-chip explanations, viewer/tasks tabs, live engine status."
     }
   ],
-  "next_entry_gate": "P15 entry: P14 approved and merged -> Full History, Export & User Workflow.",
+  "next_entry_gate": "P17 entry: P15 approved and merged -> Security, Privacy & Public Repository Hardening (P16 dropped).",
   "remaining_phases": {
     "amended_by": "docs/architecture/AUP-005_architecture_pivot_and_scope.md",
     "P13": "Qdrant Index & Real Retrieval Integration (CT-CLIP embeddings + re-rank/explanations + real GPU worker)",
@@ -177,7 +187,7 @@
     "P19": "Full Integration, Performance & Regression (incl. CT-CLIP latency + ~2.5 GB VRAM in the serving path)",
     "P20": "Freeze Run, Documentation & Public Release (against the AUP-005-amended Freeze Test Profile)"
   },
-  "active_branch": "phase/P14-frontend",
+  "active_branch": "phase/P15-history-export",
   "open_pull_request": null,
   "critical_tests": {
     "P0": {
@@ -296,6 +306,13 @@
       "production_build": "passing",
       "bilingual_strings_typed": "passing (missing translation = compile error)",
       "explanations_rendered_not_invented": "passing (UI renders only server-grounded findings)"
+    },
+    "P15": {
+      "export_json_valid_with_disclaimer": "passing",
+      "export_csv_row_per_hit": "passing",
+      "csv_formula_injection_escaped": "passing",
+      "unsupported_format_rejected": "passing",
+      "non_ready_record_invisible": "passing (P5 rule preserved)"
     }
   },
   "architecture": {

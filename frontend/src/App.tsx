@@ -1,12 +1,13 @@
 import { useState } from "react";
 import "./theme.css";
 import Dashboard from "./Dashboard";
+import History from "./History";
 import Search, { useRetrievalStatus } from "./Search";
 import Viewer from "./Viewer";
 import type { Lang } from "./i18n";
 import { t } from "./i18n";
 
-type Tab = "search" | "viewer" | "tasks";
+type Tab = "search" | "viewer" | "history" | "tasks";
 
 /** P14 — Clinical Workstation shell (see docs/reports/P14_DESIGN_DECISION.md). */
 export default function App() {
@@ -38,6 +39,12 @@ export default function App() {
             onClick={() => setTab("viewer")}
           >
             {s.tabViewer}
+          </button>
+          <button
+            className={`tab${tab === "history" ? " active" : ""}`}
+            onClick={() => setTab("history")}
+          >
+            {s.tabHistory}
           </button>
           <button
             className={`tab${tab === "tasks" ? " active" : ""}`}
@@ -75,6 +82,8 @@ export default function App() {
           <Viewer />
         </div>
       )}
+
+      {tab === "history" && <History lang={lang} />}
 
       {tab === "tasks" && (
         <div className="pane" style={{ flex: 1 }}>
