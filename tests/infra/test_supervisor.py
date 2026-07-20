@@ -100,6 +100,16 @@ def _job(jid: uuid.UUID) -> ModelJob:
         return j
 
 
+def _rev(jid: uuid.UUID) -> int:
+    """The job's CURRENT lease revision.
+
+    Shared CI database: a recovery scanner from another test can re-lease a job and
+    bump its revision, so assuming revision 1 makes these tests flaky. Fencing tests
+    deliberately pass a stale literal instead of calling this.
+    """
+    return int(_job(jid).execution_lease_revision)
+
+
 def _cmd(cid: uuid.UUID) -> CommandOutbox:
     with SessionLocal() as s:
         c = s.get(CommandOutbox, cid)
@@ -237,7 +247,7 @@ def test_startup_ready_gating_and_persist():
         assert _cmd(cid).state == "lease_acquired"
 
         hs.persist_execution_started(
-            SessionLocal, command_id=cid, supervisor_id=SUP_A, lease_revision=1,
+            SessionLocal, command_id=cid, supervisor_id=SUP_A, lease_revision=_rev(jid),
             pid=handle.process.pid, child_uuid=handle.child_uuid, nonce=handle.nonce,
         )
         job, cmd = _job(jid), _cmd(cid)
@@ -249,7 +259,7 @@ def test_startup_ready_gating_and_persist():
 
         hs.send_begin_execution(handle)
         result = hs.run_to_completion(
-            SessionLocal, handle, job_id=jid, supervisor_id=SUP_A, lease_revision=1,
+            SessionLocal, handle, job_id=jid, supervisor_id=SUP_A, lease_revision=_rev(jid),
             timeout=30,
         )
         assert result.get("mock") is True
@@ -277,7 +287,7 @@ def test_persist_failure_means_no_begin_execution():
     failpoints.arm("FP-EXEC-BEFORE-BEGIN-EXECUTION")
     with pytest.raises(failpoints.Failpoint):
         hs.persist_execution_started(
-            SessionLocal, command_id=cid, supervisor_id=SUP_A, lease_revision=1,
+            SessionLocal, command_id=cid, supervisor_id=SUP_A, lease_revision=_rev(jid),
             pid=12345, child_uuid="child-x", nonce="nonce-x",
         )
     # Rolled back: nothing advanced, and the supervisor never sends begin.
@@ -315,7 +325,7 @@ def test_forced_cancel_no_result_commit():
     try:
         hs.await_startup_ready(handle, timeout=15)
         hs.persist_execution_started(
-            SessionLocal, command_id=cid, supervisor_id=SUP_A, lease_revision=1,
+            SessionLocal, command_id=cid, supervisor_id=SUP_A, lease_revision=_rev(jid),
             pid=handle.process.pid, child_uuid=handle.child_uuid, nonce=handle.nonce,
         )
         hs.send_begin_execution(handle)
