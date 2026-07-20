@@ -70,3 +70,6 @@ Thumbs.db
 *.log
 tmp/
 .tmp/
+
+# P18 local backups (may contain workspace data)
+backups/
