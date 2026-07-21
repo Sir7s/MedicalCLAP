@@ -4,8 +4,8 @@
 **Last updated:** 2026-07-21  
 **Repository:** Sir7s/MedicalCLAP  
 **Architecture version:** 2.4.5 (`final_freeze_candidate`) · **Master Plan:** v1.0  
-**Current phase:** P19 — Full Integration, Performance and Regression
-**Active branch:** `phase/P19-integration`  
+**Current phase:** P20 — Freeze Run, Documentation and Public Release
+**Active branch:** `phase/P20-freeze-release`  
 **Current subphase:** —  
 **Phase status:** In progress — indexing CT-CLIP embeddings in Qdrant, exposing search
 (text/CT query) with findings re-ranking + explanations, and replacing the P4 **mock**
@@ -16,7 +16,7 @@ recall (held-out **R@10 0.511**) + our findings-grounded explainable re-ranking
 (0.522 CT→text / 0.533 text→CT). The from-scratch PointNet++ encoder is retained as a
 **documented negative result** (five approaches, all 1.0–1.5× random). See
 `docs/reports/P12_{EXIT_REPORT,MODEL_CARD}.md` and `docs/architecture/AUP-005_*.md`.
-**Completed & merged:** P0–P18 (P18 #19 — backup/restore). P16 dropped (AUP-005)
+**Completed & merged:** P0–P19 (P19 #20 — integration + perf). P16 dropped (AUP-005)
 **Next entry gate:** P13 — P12 approved & merged → Qdrant Index & Real Retrieval
 
 ---
@@ -297,6 +297,20 @@ Stop execution
 
 ## 13. Next action
 
-Start **P0 — Specification Lock and Repository Bootstrap**.
+**None — the program is COMPLETE.**
 
-The AI must first generate a P0 Phase Execution Plan. It may then execute all P0 Subphases sequentially, run the P0 tests and submit the complete Phase for review. It must wait for explicit user approval before entering P1.
+`current_phase` is the terminal sentinel `COMPLETE`: no phase is in flight. The last
+phase branch was `phase/P20-freeze`.
+
+All phases P0–P20 have shipped, each on its own branch and pull request with green CI,
+except **P16** (text-guided 3D segmentation), which was dropped by approved proposal
+[AUP-005](docs/architecture/AUP-005_architecture_pivot_and_scope.md). The freeze run
+passed on **2026-07-21**:
+
+- Verdict: **FREEZE_PASSED** — [`docs/reports/P20_FREEZE_RUN.md`](docs/reports/P20_FREEZE_RUN.md)
+- Profile: Freeze Test Profile v1.1 as amended by
+  [`docs/specs/FREEZE_TEST_PROFILE_AMENDMENT.md`](docs/specs/FREEZE_TEST_PROFILE_AMENDMENT.md) (AUP-005 §5)
+- Evidence: 160 tests passed / 0 failed in one run; lint, types and serving-path SAST clean
+- Headline: held-out CT→text **R@10 = 0.511** against a required floor of 0.40
+
+Disclosed gaps are recorded in the freeze report §4 and §6, not resolved silently.

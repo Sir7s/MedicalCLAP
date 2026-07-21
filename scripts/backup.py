@@ -209,7 +209,7 @@ def restore_backup(path: Path, *, confirm: bool = False) -> dict[str, Any]:
     tar_path = path / WORKSPACE_TAR
     if tar_path.is_file():
         with tarfile.open(tar_path, "r:gz") as tar:
-            tar.extractall(root.parent, filter="data")  # nosec B202 - filtered extraction
+            tar.extractall(root.parent, filter="data")  # filtered extraction (no traversal)
     dump = path / DB_DUMP
     if dump.is_file() and shutil.which("psql"):
         url = os.environ.get(

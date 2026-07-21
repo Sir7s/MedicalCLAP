@@ -65,6 +65,13 @@ running system **non-commercial**, attribution-bearing and share-alike. See
   not yet implemented: the app is a single-user local prototype and currently has no
   auth layer. Do not deploy it on a shared or public host.
 - Not a medical device; no clinical validation.
+- **SAST debt in research code.** The CI gate scans the serving path (`scripts`,
+  `backend/app`) and is clean. The `ml/` research and training code carries 17 medium
+  bandit findings — `torch.load` without `weights_only=True` and Hugging Face downloads
+  without a pinned revision. That code is not part of the deployed system and runs
+  against the operator's own checkpoints, but loading an untrusted checkpoint with it
+  would be unsafe. Recorded at freeze; see
+  [P20_FREEZE_RUN.md](docs/reports/P20_FREEZE_RUN.md) §6.
 
 ## Reporting
 
